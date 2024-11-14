@@ -1,1 +1,2 @@
 # UTTC_hackathon_back
+ハッカソン用のバックエンドリポジトリ
