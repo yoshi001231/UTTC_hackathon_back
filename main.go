@@ -34,14 +34,14 @@ var db *sql.DB
 func init() {
 	// ①-1
 	mysqlUser := os.Getenv("MYSQL_USER")
-	mysqlUserPwd := os.Getenv("MYSQL_PASSWORD")
-	mysqlDatabase := os.Getenv("MYSQL_DATABASE")
-	if mysqlUser == "" || mysqlUserPwd == "" || mysqlDatabase == "" {
-		log.Fatal("環境変数MYSQL_USER, MYSQL_PASSWORD, MYSQL_DATABASEが設定されていません")
-	}
+    mysqlPwd := os.Getenv("MYSQL_PWD")
+    mysqlHost := os.Getenv("MYSQL_HOST")
+    mysqlDatabase := os.Getenv("MYSQL_DATABASE")
+
+    connStr := fmt.Sprintf("%s:%s@%s/%s", mysqlUser, mysqlPwd, mysqlHost, mysqlDatabase)
+    _db, err := sql.Open("mysql", connStr)
 
 	// ①-2
-	_db, err := sql.Open("mysql", fmt.Sprintf("%s:%s@(localhost:3306)/%s", mysqlUser, mysqlUserPwd, mysqlDatabase))
 	if err != nil {
 		log.Fatalf("fail: sql.Open, %v\n", err)
 	}
