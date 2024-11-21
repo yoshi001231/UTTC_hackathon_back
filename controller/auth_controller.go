@@ -2,17 +2,16 @@ package controller
 
 import (
 	"encoding/json"
-	"github.com/oklog/ulid/v2"
-	"kaizen/usecase"
 	"log"
-	"math/rand"
 	"net/http"
-	"time"
+	"twitter/usecase"
 )
 
 type RegisterUserRequest struct {
-	Name string `json:"name"`
-	Age  int    `json:"age"`
+	UserID        string `json:"user_id"`
+	Name          string `json:"name"`
+	Bio           string `json:"bio"`
+	ProfileImgURL string `json:"profile_img_url"`
 }
 
 type RegisterUserController struct {
@@ -26,29 +25,30 @@ func NewRegisterUserController(useCase *usecase.RegisterUserUseCase) *RegisterUs
 func (c *RegisterUserController) Handle(w http.ResponseWriter, r *http.Request) {
 	var req RegisterUserRequest
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("fail: json.NewDecoder, %v\n", err)
+		log.Printf("JSONデコード失敗: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
-	// ID生成
-	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
-	ms := ulid.Timestamp(time.Now())
-	res, _ := ulid.New(ms, entropy)
-	userId := res.String()
+	// user_id が送信されていない場合エラー
+	if req.UserID == "" {
+		log.Println("user_id がリクエストに含まれていない")
+		w.WriteHeader(http.StatusBadRequest)
+		return
+	}
 
 	// ユーザー登録
-	if _, err := c.registerUserUseCase.Execute(userId, req.Name, req.Age); err != nil {
-		log.Printf("fail: register user, %v\n", err)
+	if _, err := c.registerUserUseCase.Execute(req.UserID, req.Name, req.Bio, req.ProfileImgURL); err != nil {
+		log.Printf("ユーザー登録失敗: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
-	// レスポンス
-	resp := map[string]string{"id": userId}
+	// レスポンス生成
+	resp := map[string]string{"user_id": req.UserID}
 	bytes, err := json.Marshal(resp)
 	if err != nil {
-		log.Printf("fail: json.Marshal, %v\n", err)
+		log.Printf("JSONエンコード失敗: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}

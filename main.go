@@ -1,49 +1,48 @@
 package main
 
 import (
-	"kaizen/controller"
-	"kaizen/dao"
-	"kaizen/usecase"
 	"log"
 	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
+	"twitter/controller"
+	"twitter/dao"
+	"twitter/usecase"
 )
 
 func main() {
-	// DAO, UseCase, Controllerの初期化
-	userDAO := dao.NewUserDAO()
-	defer userDAO.CloseDB()
+	// DAO初期化
+	userDAO := dao.GetUserDAO()
+	authDAO := dao.GetAuthDAO()
 
-	findUserUseCase := usecase.NewFindUserByNameUseCase(userDAO)
-	registerUserUseCase := usecase.NewRegisterUserUseCase(userDAO)
-	searchUserController := controller.NewSearchUserController(findUserUseCase)
+	// UseCase, Controller初期化
+	registerUserUseCase := usecase.NewRegisterUserUseCase(authDAO)
 	registerUserController := controller.NewRegisterUserController(registerUserUseCase)
 
-	// ルートの設定
-	http.HandleFunc("/user", func(w http.ResponseWriter, r *http.Request) {
-		if r.Method == http.MethodGet {
-			searchUserController.Handle(w, r)
-		} else if r.Method == http.MethodPost {
-			registerUserController.Handle(w, r)
-		} else {
-			w.WriteHeader(http.StatusMethodNotAllowed)
-		}
-	})
+	getUserUseCase := usecase.NewGetUserUseCase(userDAO)
+	updateProfileUseCase := usecase.NewUpdateProfileUseCase(userDAO)
 
-	// シグナルハンドリング
+	getUserController := controller.NewGetUserController(getUserUseCase)
+	updateProfileController := controller.NewUpdateProfileController(updateProfileUseCase)
+
+	// エンドポイント設定
+	http.HandleFunc("/auth/register", registerUserController.Handle)
+	http.HandleFunc("/user/", getUserController.Handle)
+	http.HandleFunc("/user/update-profile", updateProfileController.Handle)
+
+	// シグナル処理
 	sig := make(chan os.Signal, 1)
 	signal.Notify(sig, syscall.SIGTERM, syscall.SIGINT)
 	go func() {
 		<-sig
-		userDAO.CloseDB()
+		dao.CloseDB()
 		os.Exit(0)
 	}()
 
-	// サーバーの開始
-	log.Println("Listening...")
+	// サーバー起動
+	log.Println("サーバー起動中...")
 	if err := http.ListenAndServe(":8080", nil); err != nil {
-		log.Fatal(err)
+		log.Fatal("サーバー起動失敗")
 	}
 }
