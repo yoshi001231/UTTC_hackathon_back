@@ -9,12 +9,15 @@ import (
 	"twitter/controller"
 	"twitter/dao"
 	"twitter/usecase"
+
+	"github.com/gorilla/mux"
 )
 
 func main() {
 	// DAO初期化
 	userDAO := dao.GetUserDAO()
 	authDAO := dao.GetAuthDAO()
+	postDAO := dao.GetPostDAO()
 
 	// UseCase, Controller初期化
 	registerUserUseCase := usecase.NewRegisterUserUseCase(authDAO)
@@ -26,10 +29,23 @@ func main() {
 	getUserController := controller.NewGetUserController(getUserUseCase)
 	updateProfileController := controller.NewUpdateProfileController(updateProfileUseCase)
 
-	// エンドポイント設定
-	http.HandleFunc("/auth/register", registerUserController.Handle)
-	http.HandleFunc("/user/", getUserController.Handle)
-	http.HandleFunc("/user/update-profile", updateProfileController.Handle)
+	postUseCase := usecase.NewPostUseCase(postDAO)
+	postController := controller.NewPostController(postUseCase)
+
+	// ルーター初期化
+	router := mux.NewRouter()
+
+	// ユーザー関連エンドポイント
+	router.HandleFunc("/auth/register", registerUserController.Handle).Methods("POST")
+	router.HandleFunc("/user/{user_id}", getUserController.Handle).Methods("GET")
+	router.HandleFunc("/user/update-profile", updateProfileController.Handle).Methods("PUT")
+
+	// 投稿関連エンドポイント
+	router.HandleFunc("/post/create", postController.HandleCreatePost).Methods("POST")
+	router.HandleFunc("/post/{post_id}", postController.HandleGetPost).Methods("GET")
+	router.HandleFunc("/post/{post_id}/update", postController.HandleUpdatePost).Methods("PUT")
+	router.HandleFunc("/post/{post_id}/delete", postController.HandleDeletePost).Methods("DELETE")
+	router.HandleFunc("/post/{post_id}/reply", postController.HandleReplyPost).Methods("POST")
 
 	// シグナル処理
 	sig := make(chan os.Signal, 1)
@@ -42,7 +58,7 @@ func main() {
 
 	// サーバー起動
 	log.Println("サーバー起動中...")
-	if err := http.ListenAndServe(":8080", nil); err != nil {
+	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatal("サーバー起動失敗")
 	}
 }

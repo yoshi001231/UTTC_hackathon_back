@@ -1,13 +1,13 @@
-// controller/user_controller.go
 package controller
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
-	"strings"
 	"twitter/model"
 	"twitter/usecase"
+
+	"github.com/gorilla/mux"
 )
 
 // GetUserController ユーザー詳細取得用コントローラ
@@ -22,9 +22,9 @@ func NewGetUserController(useCase *usecase.GetUserUseCase) *GetUserController {
 
 // Handle ユーザー詳細取得エンドポイントのハンドラ
 func (c *GetUserController) Handle(w http.ResponseWriter, r *http.Request) {
-	// パスから user_id を取得
-	path := strings.TrimPrefix(r.URL.Path, "/user/")
-	userID := strings.Split(path, "/")[0]
+	// gorilla/mux を使用して user_id を取得
+	vars := mux.Vars(r)
+	userID := vars["user_id"]
 
 	if userID == "" {
 		log.Println("user_id がリクエストに含まれていません")

@@ -3,12 +3,12 @@ package dao
 import (
 	"database/sql"
 	"fmt"
+	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"sync"
 	"twitter/dao/auth"
+	"twitter/dao/post"
 	"twitter/dao/user"
-
-	_ "github.com/go-sql-driver/mysql"
 )
 
 var (
@@ -72,4 +72,9 @@ func GetAuthDAO() *auth.UserDAO {
 		authDAOInstance = auth.NewUserDAO(InitDB())
 	}
 	return authDAOInstance
+}
+
+// GetPostDAO 投稿DAOのインスタンスを取得
+func GetPostDAO() *post.PostDAO {
+	return post.NewPostDAO(InitDB())
 }
