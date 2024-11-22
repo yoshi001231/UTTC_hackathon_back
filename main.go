@@ -17,22 +17,25 @@ import (
 
 func main() {
 	// DAO初期化
-	userDAO := dao.GetUserDAO()
+	usersDAO := dao.GetUsersDAO()
 	authDAO := dao.GetAuthDAO()
-	postDAO := dao.GetPostDAO()
-	likeDAO := dao.GetLikeDAO()
+	postsDAO := dao.GetPostsDAO()
+	likesDAO := dao.GetLikesDAO()
+	followersDAO := dao.GetFollowersDAO()
 
 	// UseCase, Controller初期化
 	registerUserUseCase := usecase.NewRegisterUserUseCase(authDAO)
 	registerUserController := controller.NewRegisterUserController(registerUserUseCase)
-	getUserUseCase := usecase.NewGetUserUseCase(userDAO)
+	getUserUseCase := usecase.NewGetUserUseCase(usersDAO)
 	getUserController := controller.NewGetUserController(getUserUseCase)
-	updateProfileUseCase := usecase.NewUpdateProfileUseCase(userDAO)
+	updateProfileUseCase := usecase.NewUpdateProfileUseCase(usersDAO)
 	updateProfileController := controller.NewUpdateProfileController(updateProfileUseCase)
-	postUseCase := usecase.NewPostUseCase(postDAO)
+	postUseCase := usecase.NewPostUseCase(postsDAO)
 	postController := controller.NewPostController(postUseCase)
-	likeUseCase := usecase.NewLikeUseCase(likeDAO)
+	likeUseCase := usecase.NewLikeUseCase(likesDAO)
 	likeController := controller.NewLikeController(likeUseCase)
+	followUseCase := usecase.NewFollowUseCase(followersDAO)
+	followController := controller.NewFollowController(followUseCase)
 
 	// ルーター初期化
 	router := mux.NewRouter()
@@ -51,6 +54,11 @@ func main() {
 	router.HandleFunc("/like/{post_id}", likeController.HandleAddLike).Methods("POST")
 	router.HandleFunc("/like/{post_id}/remove", likeController.HandleRemoveLike).Methods("DELETE")
 	router.HandleFunc("/like/{post_id}/users", likeController.HandleGetUsersByPostID).Methods("GET")
+	// フォロー関連エンドポイント
+	router.HandleFunc("/follow/{user_id}", followController.HandleAddFollow).Methods("POST")
+	router.HandleFunc("/follow/{user_id}/remove", followController.HandleRemoveFollow).Methods("DELETE")
+	router.HandleFunc("/follow/{user_id}/followers", followController.HandleGetFollowers).Methods("GET")
+	router.HandleFunc("/follow/{user_id}/following", followController.HandleGetFollowing).Methods("GET")
 
 	// シグナル処理
 	sig := make(chan os.Signal, 1)

@@ -9,11 +9,11 @@ import (
 )
 
 type RegisterUserUseCase struct {
-	userDAO *auth.UserDAO
+	UsersDAO *auth.UsersDAO
 }
 
-func NewRegisterUserUseCase(userDAO *auth.UserDAO) *RegisterUserUseCase {
-	return &RegisterUserUseCase{userDAO: userDAO}
+func NewRegisterUserUseCase(UsersDAO *auth.UsersDAO) *RegisterUserUseCase {
+	return &RegisterUserUseCase{UsersDAO: UsersDAO}
 }
 
 func (uc *RegisterUserUseCase) Execute(userID, name, bio, profileImgURL string) (string, error) {
@@ -35,7 +35,7 @@ func (uc *RegisterUserUseCase) Execute(userID, name, bio, profileImgURL string) 
 		Bio:           bio,
 		ProfileImgURL: profileImgURL,
 	}
-	if err := uc.userDAO.RegisterUser(user); err != nil {
+	if err := uc.UsersDAO.RegisterUser(user); err != nil {
 		return "", err
 	}
 

@@ -9,6 +9,7 @@ import (
 	"log"
 	"sync"
 	"twitter/dao/auth"
+	"twitter/dao/follow"
 	"twitter/dao/like"
 	"twitter/dao/post"
 	"twitter/dao/user"
@@ -18,10 +19,11 @@ var (
 	dbInstance *sql.DB
 	once       sync.Once
 
-	userDAOInstance *user.UserDAO
-	authDAOInstance *auth.UserDAO
-	postDAOInstance *post.PostDAO
-	likeDAOInstance *like.LikesDAO
+	usersDAOInstance     *user.UsersDAO
+	authsDAOInstance     *auth.UsersDAO
+	postsDAOInstance     *post.PostsDAO
+	likesDAOInstance     *like.LikesDAO
+	followersDAOInstance *follow.FollowersDAO
 )
 
 // InitDB データベース接続の初期化
@@ -63,34 +65,42 @@ func CloseDB() {
 	}
 }
 
-// GetUserDAO ユーザーDAOのインスタンスを取得
-func GetUserDAO() *user.UserDAO {
-	if userDAOInstance == nil {
-		userDAOInstance = user.NewUserDAO(InitDB())
+// GetUsersDAO ユーザーDAOのインスタンスを取得
+func GetUsersDAO() *user.UsersDAO {
+	if usersDAOInstance == nil {
+		usersDAOInstance = user.NewUsersDAO(InitDB())
 	}
-	return userDAOInstance
+	return usersDAOInstance
 }
 
 // GetAuthDAO 認証用ユーザーDAOのインスタンスを取得
-func GetAuthDAO() *auth.UserDAO {
-	if authDAOInstance == nil {
-		authDAOInstance = auth.NewUserDAO(InitDB())
+func GetAuthDAO() *auth.UsersDAO {
+	if authsDAOInstance == nil {
+		authsDAOInstance = auth.NewUsersDAO(InitDB())
 	}
-	return authDAOInstance
+	return authsDAOInstance
 }
 
-// GetPostDAO 投稿DAOのインスタンスを取得
-func GetPostDAO() *post.PostDAO {
-	if postDAOInstance == nil {
-		postDAOInstance = post.NewPostDAO(InitDB())
+// GetPostsDAO 投稿DAOのインスタンスを取得
+func GetPostsDAO() *post.PostsDAO {
+	if postsDAOInstance == nil {
+		postsDAOInstance = post.NewPostsDAO(InitDB())
 	}
-	return postDAOInstance
+	return postsDAOInstance
 }
 
-// GetLikeDAO いいねDAOのインスタンスを取得
-func GetLikeDAO() *like.LikesDAO {
-	if likeDAOInstance == nil {
-		likeDAOInstance = like.NewLikesDAO(InitDB())
+// GetLikesDAO いいねDAOのインスタンスを取得
+func GetLikesDAO() *like.LikesDAO {
+	if likesDAOInstance == nil {
+		likesDAOInstance = like.NewLikesDAO(InitDB())
 	}
-	return likeDAOInstance
+	return likesDAOInstance
+}
+
+// GetFollowersDAO フォローDAOのインスタンスを取得
+func GetFollowersDAO() *follow.FollowersDAO {
+	if followersDAOInstance == nil {
+		followersDAOInstance = follow.NewFollowersDAO(InitDB())
+	}
+	return followersDAOInstance
 }

@@ -8,15 +8,15 @@ import (
 	"twitter/model"
 )
 
-type UserDAO struct {
+type UsersDAO struct {
 	db *sql.DB
 }
 
-func NewUserDAO(db *sql.DB) *UserDAO {
-	return &UserDAO{db: db}
+func NewUsersDAO(db *sql.DB) *UsersDAO {
+	return &UsersDAO{db: db}
 }
 
-func (dao *UserDAO) RegisterUser(user model.User) error {
+func (dao *UsersDAO) RegisterUser(user model.User) error {
 	_, err := dao.db.Exec("INSERT INTO users (user_id, name, bio, profile_img_url) VALUES (?, ?, ?, ?)",
 		user.UserID, user.Name, user.Bio, user.ProfileImgURL)
 	if err != nil {

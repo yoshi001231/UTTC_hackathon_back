@@ -10,16 +10,16 @@ import (
 	"twitter/model"
 )
 
-type PostDAO struct {
+type PostsDAO struct {
 	db *sql.DB
 }
 
-func NewPostDAO(db *sql.DB) *PostDAO {
-	return &PostDAO{db: db}
+func NewPostsDAO(db *sql.DB) *PostsDAO {
+	return &PostsDAO{db: db}
 }
 
 // CreatePost 新しい投稿を作成
-func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
+func (dao *PostsDAO) CreatePost(post model.Post) (*model.Post, error) {
 	var parentPostID interface{}
 	if post.ParentPostID == "" {
 		parentPostID = nil
@@ -39,7 +39,7 @@ func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
 }
 
 // GetPost 投稿の詳細を取得
-func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
+func (dao *PostsDAO) GetPost(postID string) (*model.Post, error) {
 	var post model.Post
 	var parentPostID sql.NullString
 	var deletedAt sql.NullTime
@@ -88,7 +88,7 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 }
 
 // UpdatePost 投稿を更新
-func (dao *PostDAO) UpdatePost(post model.Post) error {
+func (dao *PostsDAO) UpdatePost(post model.Post) error {
 	editedAt := time.Now()
 	_, err := dao.db.Exec("UPDATE posts SET content = ?, img_url = ?, edited_at = ? WHERE post_id = ? AND deleted_at IS NULL",
 		post.Content, post.ImgURL, editedAt, post.PostID)
@@ -99,7 +99,7 @@ func (dao *PostDAO) UpdatePost(post model.Post) error {
 }
 
 // DeletePost 投稿を削除 (論理削除)
-func (dao *PostDAO) DeletePost(postID string) error {
+func (dao *PostsDAO) DeletePost(postID string) error {
 	_, err := dao.db.Exec("UPDATE posts SET deleted_at = ? WHERE post_id = ?", time.Now(), postID)
 	if err != nil {
 		log.Printf("投稿削除失敗: %v", err)
