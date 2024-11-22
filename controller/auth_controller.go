@@ -10,15 +10,15 @@ import (
 	"twitter/usecase"
 )
 
-type RegisterUserController struct {
-	registerUserUseCase *usecase.RegisterUserUseCase
+type AuthController struct {
+	AuthUseCase *usecase.AuthUseCase
 }
 
-func NewRegisterUserController(useCase *usecase.RegisterUserUseCase) *RegisterUserController {
-	return &RegisterUserController{registerUserUseCase: useCase}
+func NewAuthController(useCase *usecase.AuthUseCase) *AuthController {
+	return &AuthController{AuthUseCase: useCase}
 }
 
-func (c *RegisterUserController) Handle(w http.ResponseWriter, r *http.Request) {
+func (c *AuthController) Handle(w http.ResponseWriter, r *http.Request) {
 	var user model.User
 	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		log.Printf("JSONデコード失敗: %v", err)
@@ -34,7 +34,7 @@ func (c *RegisterUserController) Handle(w http.ResponseWriter, r *http.Request) 
 	}
 
 	// ユーザー登録
-	if _, err := c.registerUserUseCase.Execute(user.UserID, user.Name, user.Bio, user.ProfileImgURL); err != nil {
+	if _, err := c.AuthUseCase.RegisterUser(user.UserID, user.Name, user.Bio, user.ProfileImgURL); err != nil {
 		log.Printf("ユーザー登録失敗: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return

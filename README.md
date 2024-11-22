@@ -3,5 +3,5 @@
 
 tmp:ローカルデータベースを立ち上げるためのdockerディレクトリ
 
-controller, usecaseはエンドポイントごとにコードを分割。
-daoはエンドポイントごとにディレクトリを分割し、各ディレクトリ内でどのテーブルを参照するかによってさらに分割
+controller, dao, usecaseはエンドポイントごとにコードを分割。
+daoでは加えてdao/init_dao.goでdaoアクセスを管理

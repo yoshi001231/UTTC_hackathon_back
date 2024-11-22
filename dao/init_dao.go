@@ -8,42 +8,26 @@ import (
 	_ "github.com/go-sql-driver/mysql"
 	"log"
 	"sync"
-	"twitter/dao/auth"
-	"twitter/dao/follow"
-	"twitter/dao/like"
-	"twitter/dao/post"
-	"twitter/dao/user"
 )
 
 var (
 	dbInstance *sql.DB
 	once       sync.Once
 
-	usersDAOInstance     *user.UsersDAO
-	authsDAOInstance     *auth.UsersDAO
-	postsDAOInstance     *post.PostsDAO
-	likesDAOInstance     *like.LikesDAO
-	followersDAOInstance *follow.FollowersDAO
+	authDAOInstance     *AuthDAO
+	followDAOInstance   *FollowDAO
+	likeDAOInstance     *LikeDAO
+	postDAOInstance     *PostDAO
+	timelineDAOInstance *TimelineDAO
+	userDAOInstance     *UserDAO
 )
 
-// InitDB データベース接続の初期化
 func InitDB() *sql.DB {
 	once.Do(func() {
-		// 開発用ローカル接続情報
 		user := "uttc_user"
 		password := "uttc_password"
-		host := "localhost:3306" // ローカルホスト
+		host := "localhost:3306"
 		database := "uttc_hackathon_local_db"
-
-		// デプロイ用
-		//user := os.Getenv("MYSQL_USER")
-		//password := os.Getenv("MYSQL_PWD")
-		//host := os.Getenv("MYSQL_HOST")
-		//database := os.Getenv("MYSQL_DATABASE")
-
-		if user == "" || password == "" || host == "" || database == "" {
-			log.Fatal("環境変数MYSQL_USER, MYSQL_PWD, MYSQL_HOST, MYSQL_DATABASEが設定されていない")
-		}
 
 		dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", user, password, host, database)
 		db, err := sql.Open("mysql", dsn)
@@ -55,7 +39,6 @@ func InitDB() *sql.DB {
 	return dbInstance
 }
 
-// CloseDB データベース接続の終了
 func CloseDB() {
 	if dbInstance != nil {
 		if err := dbInstance.Close(); err != nil {
@@ -65,42 +48,44 @@ func CloseDB() {
 	}
 }
 
-// GetUsersDAO ユーザーDAOのインスタンスを取得
-func GetUsersDAO() *user.UsersDAO {
-	if usersDAOInstance == nil {
-		usersDAOInstance = user.NewUsersDAO(InitDB())
+func GetAuthDAO() *AuthDAO {
+	if authDAOInstance == nil {
+		authDAOInstance = NewAuthDAO(InitDB())
 	}
-	return usersDAOInstance
+	return authDAOInstance
 }
 
-// GetAuthDAO 認証用ユーザーDAOのインスタンスを取得
-func GetAuthDAO() *auth.UsersDAO {
-	if authsDAOInstance == nil {
-		authsDAOInstance = auth.NewUsersDAO(InitDB())
+func GetFollowDAO() *FollowDAO {
+	if followDAOInstance == nil {
+		followDAOInstance = NewFollowDAO(InitDB())
 	}
-	return authsDAOInstance
+	return followDAOInstance
 }
 
-// GetPostsDAO 投稿DAOのインスタンスを取得
-func GetPostsDAO() *post.PostsDAO {
-	if postsDAOInstance == nil {
-		postsDAOInstance = post.NewPostsDAO(InitDB())
+func GetLikeDAO() *LikeDAO {
+	if likeDAOInstance == nil {
+		likeDAOInstance = NewLikeDAO(InitDB())
 	}
-	return postsDAOInstance
+	return likeDAOInstance
 }
 
-// GetLikesDAO いいねDAOのインスタンスを取得
-func GetLikesDAO() *like.LikesDAO {
-	if likesDAOInstance == nil {
-		likesDAOInstance = like.NewLikesDAO(InitDB())
+func GetPostDAO() *PostDAO {
+	if postDAOInstance == nil {
+		postDAOInstance = NewPostDAO(InitDB())
 	}
-	return likesDAOInstance
+	return postDAOInstance
 }
 
-// GetFollowersDAO フォローDAOのインスタンスを取得
-func GetFollowersDAO() *follow.FollowersDAO {
-	if followersDAOInstance == nil {
-		followersDAOInstance = follow.NewFollowersDAO(InitDB())
+func GetTimelineDAO() *TimelineDAO {
+	if timelineDAOInstance == nil {
+		timelineDAOInstance = NewTimelineDAO(InitDB())
 	}
-	return followersDAOInstance
+	return timelineDAOInstance
+}
+
+func GetUserDAO() *UserDAO {
+	if userDAOInstance == nil {
+		userDAOInstance = NewUserDAO(InitDB())
+	}
+	return userDAOInstance
 }

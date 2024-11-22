@@ -1,6 +1,6 @@
-// dao/auth/users_dao.go
+// dao/auth_dao.go
 
-package auth
+package dao
 
 import (
 	"database/sql"
@@ -8,15 +8,15 @@ import (
 	"twitter/model"
 )
 
-type UsersDAO struct {
+type AuthDAO struct {
 	db *sql.DB
 }
 
-func NewUsersDAO(db *sql.DB) *UsersDAO {
-	return &UsersDAO{db: db}
+func NewAuthDAO(db *sql.DB) *AuthDAO {
+	return &AuthDAO{db: db}
 }
 
-func (dao *UsersDAO) RegisterUser(user model.User) error {
+func (dao *AuthDAO) RegisterUser(user model.User) error {
 	_, err := dao.db.Exec("INSERT INTO users (user_id, name, bio, profile_img_url) VALUES (?, ?, ?, ?)",
 		user.UserID, user.Name, user.Bio, user.ProfileImgURL)
 	if err != nil {

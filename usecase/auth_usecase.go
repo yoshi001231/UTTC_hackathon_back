@@ -4,19 +4,19 @@ package usecase
 
 import (
 	"errors"
-	"twitter/dao/auth"
+	"twitter/dao"
 	"twitter/model"
 )
 
-type RegisterUserUseCase struct {
-	UsersDAO *auth.UsersDAO
+type AuthUseCase struct { // 修正: 名前をAuthUseCaseに変更
+	AuthDAO *dao.AuthDAO
 }
 
-func NewRegisterUserUseCase(UsersDAO *auth.UsersDAO) *RegisterUserUseCase {
-	return &RegisterUserUseCase{UsersDAO: UsersDAO}
+func NewAuthUseCase(AuthDAO *dao.AuthDAO) *AuthUseCase { // 修正: コンストラクタも変更
+	return &AuthUseCase{AuthDAO: AuthDAO}
 }
 
-func (uc *RegisterUserUseCase) Execute(userID, name, bio, profileImgURL string) (string, error) {
+func (uc *AuthUseCase) RegisterUser(userID, name, bio, profileImgURL string) (string, error) { // 修正: メソッド名をわかりやすく変更
 	// バリデーション
 	if userID == "" {
 		return "", errors.New("user_id が無効: 必須項目")
@@ -35,7 +35,7 @@ func (uc *RegisterUserUseCase) Execute(userID, name, bio, profileImgURL string) 
 		Bio:           bio,
 		ProfileImgURL: profileImgURL,
 	}
-	if err := uc.UsersDAO.RegisterUser(user); err != nil {
+	if err := uc.AuthDAO.RegisterUser(user); err != nil {
 		return "", err
 	}
 

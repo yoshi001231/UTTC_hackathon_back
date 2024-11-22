@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"twitter/model"
 	"twitter/usecase"
 
 	"github.com/gorilla/mux"
@@ -24,14 +25,19 @@ func (c *LikeController) HandleAddLike(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	postID := vars["post_id"]
 
-	// 認証から user_id を取得（ここでは仮に "authenticated_user" を使用）
-	userID := r.Header.Get("X-User-ID")
-	if userID == "" {
-		http.Error(w, "ユーザー認証が必要です", http.StatusUnauthorized)
+	var like model.Like
+	if err := json.NewDecoder(r.Body).Decode(&like); err != nil {
+		log.Printf("JSONデコード失敗: %v", err)
+		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if err := c.likeUseCase.AddLike(userID, postID); err != nil {
+	if like.UserID == "" {
+		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		return
+	}
+
+	if err := c.likeUseCase.AddLike(like.UserID, postID); err != nil {
 		log.Printf("いいね追加失敗: %v", err)
 		http.Error(w, "いいね追加に失敗しました", http.StatusInternalServerError)
 		return
@@ -45,14 +51,19 @@ func (c *LikeController) HandleRemoveLike(w http.ResponseWriter, r *http.Request
 	vars := mux.Vars(r)
 	postID := vars["post_id"]
 
-	// 認証から user_id を取得（ここでは仮に "authenticated_user" を使用）
-	userID := r.Header.Get("X-User-ID")
-	if userID == "" {
-		http.Error(w, "ユーザー認証が必要です", http.StatusUnauthorized)
+	var like model.Like
+	if err := json.NewDecoder(r.Body).Decode(&like); err != nil {
+		log.Printf("JSONデコード失敗: %v", err)
+		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if err := c.likeUseCase.RemoveLike(userID, postID); err != nil {
+	if like.UserID == "" {
+		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		return
+	}
+
+	if err := c.likeUseCase.RemoveLike(like.UserID, postID); err != nil {
 		log.Printf("いいね削除失敗: %v", err)
 		http.Error(w, "いいね削除に失敗しました", http.StatusInternalServerError)
 		return

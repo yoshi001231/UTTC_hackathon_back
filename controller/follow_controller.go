@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"twitter/model"
 	"twitter/usecase"
 
 	"github.com/gorilla/mux"
@@ -24,14 +25,19 @@ func (c *FollowController) HandleAddFollow(w http.ResponseWriter, r *http.Reques
 	vars := mux.Vars(r)
 	followingUserID := vars["user_id"]
 
-	// 認証から user_id を取得
-	userID := r.Header.Get("X-User-ID")
-	if userID == "" {
-		http.Error(w, "ユーザー認証が必要です", http.StatusUnauthorized)
+	var follow model.Follow
+	if err := json.NewDecoder(r.Body).Decode(&follow); err != nil {
+		log.Printf("JSONデコード失敗: %v", err)
+		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if err := c.followUseCase.AddFollow(userID, followingUserID); err != nil {
+	if follow.UserID == "" {
+		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		return
+	}
+
+	if err := c.followUseCase.AddFollow(follow.UserID, followingUserID); err != nil {
 		log.Printf("フォロー追加失敗: %v", err)
 		http.Error(w, "フォロー追加に失敗しました", http.StatusInternalServerError)
 		return
@@ -45,14 +51,19 @@ func (c *FollowController) HandleRemoveFollow(w http.ResponseWriter, r *http.Req
 	vars := mux.Vars(r)
 	followingUserID := vars["user_id"]
 
-	// 認証から user_id を取得
-	userID := r.Header.Get("X-User-ID")
-	if userID == "" {
-		http.Error(w, "ユーザー認証が必要です", http.StatusUnauthorized)
+	var follow model.Follow
+	if err := json.NewDecoder(r.Body).Decode(&follow); err != nil {
+		log.Printf("JSONデコード失敗: %v", err)
+		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if err := c.followUseCase.RemoveFollow(userID, followingUserID); err != nil {
+	if follow.UserID == "" {
+		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		return
+	}
+
+	if err := c.followUseCase.RemoveFollow(follow.UserID, followingUserID); err != nil {
 		log.Printf("フォロー解除失敗: %v", err)
 		http.Error(w, "フォロー解除に失敗しました", http.StatusInternalServerError)
 		return

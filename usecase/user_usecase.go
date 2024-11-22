@@ -4,35 +4,28 @@ package usecase
 
 import (
 	"errors"
-	"twitter/dao/user"
+	"twitter/dao"
 	"twitter/model"
 )
 
-type GetUserUseCase struct {
-	UsersDAO *user.UsersDAO
+type UserUseCase struct {
+	UserDAO *dao.UserDAO
 }
 
-func NewGetUserUseCase(UsersDAO *user.UsersDAO) *GetUserUseCase {
-	return &GetUserUseCase{UsersDAO: UsersDAO}
+func NewUserUseCase(UserDAO *dao.UserDAO) *UserUseCase {
+	return &UserUseCase{UserDAO: UserDAO}
 }
 
-func (uc *GetUserUseCase) Execute(userID string) (*model.User, error) {
+// GetUser ユーザー情報を取得する
+func (uc *UserUseCase) GetUser(userID string) (*model.User, error) {
 	if userID == "" {
 		return nil, errors.New("user_id が無効です")
 	}
-	return uc.UsersDAO.GetUser(userID)
+	return uc.UserDAO.GetUser(userID)
 }
 
-type UpdateProfileUseCase struct {
-	UsersDAO *user.UsersDAO
-}
-
-func NewUpdateProfileUseCase(UsersDAO *user.UsersDAO) *UpdateProfileUseCase {
-	return &UpdateProfileUseCase{UsersDAO: UsersDAO}
-}
-
-// Execute プロフィールを更新する
-func (uc *UpdateProfileUseCase) Execute(user model.User) error {
+// UpdateProfile プロフィールを更新する
+func (uc *UserUseCase) UpdateProfile(user model.User) error {
 	if user.UserID == "" {
 		return errors.New("user_id が無効です")
 	}
@@ -42,13 +35,13 @@ func (uc *UpdateProfileUseCase) Execute(user model.User) error {
 	if len(user.Bio) > 160 {
 		return errors.New("自己紹介が無効です")
 	}
-	return uc.UsersDAO.UpdateUser(user)
+	return uc.UserDAO.UpdateUser(user)
 }
 
-// GetUser 更新後のユーザー情報を取得する
-func (uc *UpdateProfileUseCase) GetUser(userID string) (*model.User, error) {
+// GetUpdatedUser 更新後のユーザー情報を取得する
+func (uc *UserUseCase) GetUpdatedUser(userID string) (*model.User, error) {
 	if userID == "" {
 		return nil, errors.New("user_id が無効です")
 	}
-	return uc.UsersDAO.GetUser(userID)
+	return uc.UserDAO.GetUser(userID)
 }

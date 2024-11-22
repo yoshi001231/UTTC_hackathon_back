@@ -1,6 +1,6 @@
-// dao/like/likes_dao.go
+// dao/like_dao.go
 
-package like
+package dao
 
 import (
 	"database/sql"
@@ -9,16 +9,16 @@ import (
 	"twitter/model"
 )
 
-type LikesDAO struct {
+type LikeDAO struct {
 	db *sql.DB
 }
 
-func NewLikesDAO(db *sql.DB) *LikesDAO {
-	return &LikesDAO{db: db}
+func NewLikeDAO(db *sql.DB) *LikeDAO {
+	return &LikeDAO{db: db}
 }
 
 // AddLike 投稿にいいねを追加
-func (dao *LikesDAO) AddLike(userID, postID string) error {
+func (dao *LikeDAO) AddLike(userID, postID string) error {
 	_, err := dao.db.Exec(
 		"INSERT INTO likes (user_id, post_id, created_at) VALUES (?, ?, ?)",
 		userID, postID, time.Now(),
@@ -30,7 +30,7 @@ func (dao *LikesDAO) AddLike(userID, postID string) error {
 }
 
 // RemoveLike 投稿のいいねを削除
-func (dao *LikesDAO) RemoveLike(userID, postID string) error {
+func (dao *LikeDAO) RemoveLike(userID, postID string) error {
 	_, err := dao.db.Exec(
 		"DELETE FROM likes WHERE user_id = ? AND post_id = ?",
 		userID, postID,
@@ -42,7 +42,7 @@ func (dao *LikesDAO) RemoveLike(userID, postID string) error {
 }
 
 // GetUsersByPostID 投稿にいいねしたユーザー一覧を取得
-func (dao *LikesDAO) GetUsersByPostID(postID string) ([]model.User, error) {
+func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
 	rows, err := dao.db.Query(
 		`SELECT u.user_id, u.name, u.bio, u.profile_img_url 
          FROM users u

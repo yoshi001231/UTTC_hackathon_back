@@ -12,18 +12,18 @@ import (
 	"github.com/gorilla/mux"
 )
 
-// GetUserController ユーザー詳細取得用コントローラ
-type GetUserController struct {
-	getUserUseCase *usecase.GetUserUseCase
+// UserController ユーザー関連エンドポイントのコントローラ
+type UserController struct {
+	userUseCase *usecase.UserUseCase
 }
 
-// NewGetUserController コントローラの初期化
-func NewGetUserController(useCase *usecase.GetUserUseCase) *GetUserController {
-	return &GetUserController{getUserUseCase: useCase}
+// NewUserController コントローラの初期化
+func NewUserController(useCase *usecase.UserUseCase) *UserController {
+	return &UserController{userUseCase: useCase}
 }
 
-// Handle ユーザー詳細取得エンドポイントのハンドラ
-func (c *GetUserController) Handle(w http.ResponseWriter, r *http.Request) {
+// HandleGetUser ユーザー詳細取得エンドポイントのハンドラ
+func (c *UserController) HandleGetUser(w http.ResponseWriter, r *http.Request) {
 	// gorilla/mux を使用して user_id を取得
 	vars := mux.Vars(r)
 	userID := vars["user_id"]
@@ -35,7 +35,7 @@ func (c *GetUserController) Handle(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// ユーザー詳細取得
-	user, err := c.getUserUseCase.Execute(userID)
+	user, err := c.userUseCase.GetUser(userID)
 	if err != nil {
 		log.Printf("ユーザー取得失敗: %v", err)
 		w.WriteHeader(http.StatusNotFound)
@@ -53,18 +53,8 @@ func (c *GetUserController) Handle(w http.ResponseWriter, r *http.Request) {
 	w.Write(bytes)
 }
 
-// UpdateProfileController プロフィール更新用コントローラ
-type UpdateProfileController struct {
-	updateProfileUseCase *usecase.UpdateProfileUseCase
-}
-
-// NewUpdateProfileController コントローラの初期化
-func NewUpdateProfileController(useCase *usecase.UpdateProfileUseCase) *UpdateProfileController {
-	return &UpdateProfileController{updateProfileUseCase: useCase}
-}
-
-// Handle プロフィール更新エンドポイントのハンドラ
-func (c *UpdateProfileController) Handle(w http.ResponseWriter, r *http.Request) {
+// HandleUpdateProfile プロフィール更新エンドポイントのハンドラ
+func (c *UserController) HandleUpdateProfile(w http.ResponseWriter, r *http.Request) {
 	var req model.User
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("JSONデコード失敗: %v", err)
@@ -79,14 +69,14 @@ func (c *UpdateProfileController) Handle(w http.ResponseWriter, r *http.Request)
 	}
 
 	// プロフィール更新
-	if err := c.updateProfileUseCase.Execute(req); err != nil {
+	if err := c.userUseCase.UpdateProfile(req); err != nil {
 		log.Printf("プロフィール更新失敗: %v", err)
 		http.Error(w, "プロフィール更新に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	// 更新後のユーザー情報を取得してレスポンス
-	updatedUser, err := c.updateProfileUseCase.GetUser(req.UserID)
+	updatedUser, err := c.userUseCase.GetUpdatedUser(req.UserID)
 	if err != nil {
 		log.Printf("更新後のユーザー取得失敗: %v", err)
 		http.Error(w, "更新後のユーザー情報取得に失敗しました", http.StatusInternalServerError)

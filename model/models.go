@@ -23,3 +23,15 @@ type Post struct {
 	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	ParentPostID string     `json:"parent_post_id,omitempty"`
 }
+
+// Like モデル
+type Like struct {
+	UserID string `json:"user_id"`
+	PostID string `json:"post_id,omitempty"`
+}
+
+// Follow モデル
+type Follow struct {
+	UserID          string `json:"user_id"`
+	FollowingUserID string `json:"following_user_id"`
+}

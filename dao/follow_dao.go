@@ -1,6 +1,6 @@
-// dao/follow/followers_dao.go
+// dao/follow_dao.go
 
-package follow
+package dao
 
 import (
 	"database/sql"
@@ -9,16 +9,15 @@ import (
 	"twitter/model"
 )
 
-type FollowersDAO struct {
+type FollowDAO struct {
 	db *sql.DB
 }
 
-func NewFollowersDAO(db *sql.DB) *FollowersDAO {
-	return &FollowersDAO{db: db}
+func NewFollowDAO(db *sql.DB) *FollowDAO {
+	return &FollowDAO{db: db}
 }
 
-// AddFollow 指定ユーザーをフォロー
-func (dao *FollowersDAO) AddFollow(userID, followingUserID string) error {
+func (dao *FollowDAO) AddFollow(userID, followingUserID string) error {
 	_, err := dao.db.Exec(
 		"INSERT INTO followers (user_id, following_user_id, created_at) VALUES (?, ?, ?)",
 		userID, followingUserID, time.Now(),
@@ -29,8 +28,7 @@ func (dao *FollowersDAO) AddFollow(userID, followingUserID string) error {
 	return err
 }
 
-// RemoveFollow 指定ユーザーのフォローを解除
-func (dao *FollowersDAO) RemoveFollow(userID, followingUserID string) error {
+func (dao *FollowDAO) RemoveFollow(userID, followingUserID string) error {
 	_, err := dao.db.Exec(
 		"DELETE FROM followers WHERE user_id = ? AND following_user_id = ?",
 		userID, followingUserID,
@@ -41,8 +39,7 @@ func (dao *FollowersDAO) RemoveFollow(userID, followingUserID string) error {
 	return err
 }
 
-// GetFollowers 指定ユーザーのフォロワー一覧を取得
-func (dao *FollowersDAO) GetFollowers(userID string) ([]model.User, error) {
+func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
 	rows, err := dao.db.Query(
 		`SELECT u.user_id, u.name, u.bio, u.profile_img_url 
          FROM users u
@@ -68,8 +65,7 @@ func (dao *FollowersDAO) GetFollowers(userID string) ([]model.User, error) {
 	return users, nil
 }
 
-// GetFollowing 指定ユーザーのフォロー中一覧を取得
-func (dao *FollowersDAO) GetFollowing(userID string) ([]model.User, error) {
+func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
 	rows, err := dao.db.Query(
 		`SELECT u.user_id, u.name, u.bio, u.profile_img_url 
          FROM users u
