@@ -4,4 +4,5 @@
 tmp:ローカルデータベースを立ち上げるためのdockerディレクトリ
 
 controller, dao, usecaseはエンドポイントごとにコードを分割。
-daoでは加えてdao/init_dao.goでdaoアクセスを管理
+
+daoでは加えてdao/init_dao.goでdaoアクセス管理やローカルとGCPの環境変数切り替え
