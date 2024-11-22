@@ -1,3 +1,5 @@
+// dao/post/posts_dao.go
+
 package post
 
 import (
@@ -18,7 +20,6 @@ func NewPostDAO(db *sql.DB) *PostDAO {
 
 // CreatePost 新しい投稿を作成
 func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
-	// parent_post_id が空文字列の場合、NULL に変換
 	var parentPostID interface{}
 	if post.ParentPostID == "" {
 		parentPostID = nil
@@ -42,9 +43,11 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 	var post model.Post
 	var parentPostID sql.NullString
 	var deletedAt sql.NullTime
+	var editedAt sql.NullTime
 
 	err := dao.db.QueryRow(
-		"SELECT post_id, user_id, content, img_url, created_at, parent_post_id, deleted_at FROM posts WHERE post_id = ?",
+		`SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at 
+         FROM posts WHERE post_id = ?`,
 		postID,
 	).Scan(
 		&post.PostID,
@@ -52,6 +55,7 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 		&post.Content,
 		&post.ImgURL,
 		&post.CreatedAt,
+		&editedAt,
 		&parentPostID,
 		&deletedAt,
 	)
@@ -75,13 +79,19 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 		post.ParentPostID = ""
 	}
 
+	// edited_at の処理
+	if editedAt.Valid {
+		post.EditedAt = &editedAt.Time
+	}
+
 	return &post, nil
 }
 
 // UpdatePost 投稿を更新
 func (dao *PostDAO) UpdatePost(post model.Post) error {
-	editedAt := time.Now() // 現在時刻を取得
-	_, err := dao.db.Exec("UPDATE posts SET content = ?, img_url = ?, edited_at = ? WHERE post_id = ? AND deleted_at IS NULL", post.Content, post.ImgURL, editedAt, post.PostID)
+	editedAt := time.Now()
+	_, err := dao.db.Exec("UPDATE posts SET content = ?, img_url = ?, edited_at = ? WHERE post_id = ? AND deleted_at IS NULL",
+		post.Content, post.ImgURL, editedAt, post.PostID)
 	if err != nil {
 		log.Printf("投稿更新失敗: %v", err)
 	}

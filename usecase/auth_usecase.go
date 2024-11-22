@@ -1,3 +1,5 @@
+// usecase/auth_usecase.go
+
 package usecase
 
 import (

@@ -1,3 +1,5 @@
+// dao/init_dao.go
+
 package dao
 
 import (
@@ -7,6 +9,7 @@ import (
 	"log"
 	"sync"
 	"twitter/dao/auth"
+	"twitter/dao/like"
 	"twitter/dao/post"
 	"twitter/dao/user"
 )
@@ -17,6 +20,8 @@ var (
 
 	userDAOInstance *user.UserDAO
 	authDAOInstance *auth.UserDAO
+	postDAOInstance *post.PostDAO
+	likeDAOInstance *like.LikesDAO
 )
 
 // InitDB データベース接続の初期化
@@ -76,5 +81,16 @@ func GetAuthDAO() *auth.UserDAO {
 
 // GetPostDAO 投稿DAOのインスタンスを取得
 func GetPostDAO() *post.PostDAO {
-	return post.NewPostDAO(InitDB())
+	if postDAOInstance == nil {
+		postDAOInstance = post.NewPostDAO(InitDB())
+	}
+	return postDAOInstance
+}
+
+// GetLikeDAO いいねDAOのインスタンスを取得
+func GetLikeDAO() *like.LikesDAO {
+	if likeDAOInstance == nil {
+		likeDAOInstance = like.NewLikesDAO(InitDB())
+	}
+	return likeDAOInstance
 }

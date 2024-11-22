@@ -1,3 +1,5 @@
+// controller/post_controller.go
+
 package controller
 
 import (
@@ -54,7 +56,7 @@ func (c *PostController) HandleGetPost(w http.ResponseWriter, r *http.Request) {
 	post, err := c.postUseCase.GetPost(postID)
 	if err != nil {
 		if err.Error() == "投稿が削除されています" {
-			http.Error(w, "投稿が削除されています", http.StatusGone) // HTTP 410 GONE を使用
+			http.Error(w, "投稿が削除されています", http.StatusGone)
 		} else {
 			log.Printf("投稿取得失敗: %v", err)
 			http.Error(w, "投稿が見つかりません", http.StatusNotFound)

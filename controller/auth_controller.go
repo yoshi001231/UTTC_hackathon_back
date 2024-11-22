@@ -1,18 +1,14 @@
+// controller/auth_controller.go
+
 package controller
 
 import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"twitter/model"
 	"twitter/usecase"
 )
-
-type RegisterUserRequest struct {
-	UserID        string `json:"user_id"`
-	Name          string `json:"name"`
-	Bio           string `json:"bio"`
-	ProfileImgURL string `json:"profile_img_url"`
-}
 
 type RegisterUserController struct {
 	registerUserUseCase *usecase.RegisterUserUseCase
@@ -23,29 +19,29 @@ func NewRegisterUserController(useCase *usecase.RegisterUserUseCase) *RegisterUs
 }
 
 func (c *RegisterUserController) Handle(w http.ResponseWriter, r *http.Request) {
-	var req RegisterUserRequest
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+	var user model.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
 		log.Printf("JSONデコード失敗: %v", err)
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// user_id が送信されていない場合エラー
-	if req.UserID == "" {
+	if user.UserID == "" {
 		log.Println("user_id がリクエストに含まれていない")
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
 
 	// ユーザー登録
-	if _, err := c.registerUserUseCase.Execute(req.UserID, req.Name, req.Bio, req.ProfileImgURL); err != nil {
+	if _, err := c.registerUserUseCase.Execute(user.UserID, user.Name, user.Bio, user.ProfileImgURL); err != nil {
 		log.Printf("ユーザー登録失敗: %v", err)
 		w.WriteHeader(http.StatusInternalServerError)
 		return
 	}
 
 	// レスポンス生成
-	resp := map[string]string{"user_id": req.UserID}
+	resp := map[string]string{"user_id": user.UserID}
 	bytes, err := json.Marshal(resp)
 	if err != nil {
 		log.Printf("JSONエンコード失敗: %v", err)

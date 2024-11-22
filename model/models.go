@@ -1,3 +1,5 @@
+// model/models.go
+
 package model
 
 import "time"
@@ -17,7 +19,7 @@ type Post struct {
 	Content      string     `json:"content"`
 	ImgURL       string     `json:"img_url"`
 	CreatedAt    time.Time  `json:"created_at"`
-	EditedAt     time.Time  `json:"edited_at"`
+	EditedAt     *time.Time `json:"edited_at,omitempty"`
 	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	ParentPostID string     `json:"parent_post_id,omitempty"`
 }
