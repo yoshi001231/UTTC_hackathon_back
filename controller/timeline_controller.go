@@ -4,28 +4,29 @@ package controller
 
 import (
 	"encoding/json"
+	"github.com/gorilla/mux"
 	"log"
 	"net/http"
-	"twitter/model"
 	"twitter/usecase"
-
-	"github.com/gorilla/mux"
 )
 
 type TimelineController struct {
 	timelineUseCase *usecase.TimelineUseCase
 }
 
-func NewTimelineController(timelineUseCase *usecase.TimelineUseCase) *TimelineController {
-	return &TimelineController{timelineUseCase: timelineUseCase}
+func NewTimelineController(useCase *usecase.TimelineUseCase) *TimelineController {
+	return &TimelineController{timelineUseCase: useCase}
 }
 
 // HandleGetUserTimeline ログインユーザーのタイムラインを取得
 func (c *TimelineController) HandleGetUserTimeline(w http.ResponseWriter, r *http.Request) {
-	var req model.User
+	var req struct {
+		UserID string `json:"user_id"`
+	}
+
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
 		log.Printf("JSONデコード失敗: %v", err)
-		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
+		http.Error(w, "リクエスト形式が不正です", http.StatusBadRequest)
 		return
 	}
 
@@ -37,7 +38,7 @@ func (c *TimelineController) HandleGetUserTimeline(w http.ResponseWriter, r *htt
 	posts, err := c.timelineUseCase.GetUserTimeline(req.UserID)
 	if err != nil {
 		log.Printf("タイムライン取得失敗: %v", err)
-		http.Error(w, "タイムラインの取得に失敗しました", http.StatusInternalServerError)
+		http.Error(w, "タイムライン取得に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
@@ -57,10 +58,15 @@ func (c *TimelineController) HandleGetUserPosts(w http.ResponseWriter, r *http.R
 	vars := mux.Vars(r)
 	userID := vars["user_id"]
 
+	if userID == "" {
+		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		return
+	}
+
 	posts, err := c.timelineUseCase.GetUserPosts(userID)
 	if err != nil {
-		log.Printf("ユーザー投稿一覧取得失敗: %v", err)
-		http.Error(w, "投稿一覧の取得に失敗しました", http.StatusInternalServerError)
+		log.Printf("投稿一覧取得失敗: %v", err)
+		http.Error(w, "投稿一覧取得に失敗しました", http.StatusInternalServerError)
 		return
 	}
 

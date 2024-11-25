@@ -7,7 +7,6 @@ import (
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
 	"log"
-	"os"
 	"sync"
 )
 
@@ -26,19 +25,19 @@ var (
 func InitDB() *sql.DB {
 	once.Do(func() {
 		// ローカル用
-		//user := "uttc_user"
-		//password := "uttc_password"
-		//host := "localhost:3306"
-		//database := "uttc_hackathon_local_db"
+		user := "uttc_user"
+		password := "uttc_password"
+		host := "localhost:3306"
+		database := "uttc_hackathon_local_db"
+		dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", user, password, host, database)
 
 		// 環境変数から設定を取得（デプロイ用）
-		user := os.Getenv("MYSQL_USER")
-		password := os.Getenv("MYSQL_PWD")
-		host := os.Getenv("MYSQL_HOST")
-		database := os.Getenv("MYSQL_DATABASE")
-
-		// dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", user, password, host, database)
-		dsn := fmt.Sprintf("%s:%s@%s/%s", user, password, host, database)
+		// user := os.Getenv("MYSQL_USER")
+		// password := os.Getenv("MYSQL_PWD")
+		// host := os.Getenv("MYSQL_HOST")
+		// database := os.Getenv("MYSQL_DATABASE")
+		// dsn := fmt.Sprintf("%s:%s@%s/%s", user, password, host, database)
+		
 		db, err := sql.Open("mysql", dsn)
 		if err != nil {
 			log.Fatalf("データベース接続失敗: %v", err)
