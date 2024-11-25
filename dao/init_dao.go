@@ -2,10 +2,12 @@
 
 package dao
 
+
 import (
 	"database/sql"
 	"fmt"
 	_ "github.com/go-sql-driver/mysql"
+	"os"
 	"log"
 	"sync"
 )
