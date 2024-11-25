@@ -16,7 +16,6 @@ import (
 )
 
 func main() {
-	log.Println("hellllllo")
 	// DAO初期化
 	userDAO := dao.GetUserDAO()
 	authDAO := dao.GetAuthDAO()
@@ -67,8 +66,8 @@ func main() {
 	router.HandleFunc("/follow/{user_id}/following", followController.HandleGetFollowing).Methods("GET")
 
 	// タイムライン関連エンドポイント
-	router.HandleFunc("/timeline", timelineController.HandleGetUserTimeline).Methods("GET")        // ログインユーザーのタイムライン取得
-	router.HandleFunc("/timeline/{user_id}", timelineController.HandleGetUserPosts).Methods("GET") // 指定ユーザーの投稿一覧取得
+	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")       // ログインユーザーのタイムライン取得
+	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET") // 指定ユーザーの投稿一覧取得
 
 	// シグナル処理
 	sig := make(chan os.Signal, 1)
