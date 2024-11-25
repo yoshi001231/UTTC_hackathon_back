@@ -1,13 +1,12 @@
-// controller/timeline_controller.go
-
 package controller
 
 import (
 	"encoding/json"
-	"github.com/gorilla/mux"
 	"log"
 	"net/http"
 	"twitter/usecase"
+
+	"github.com/gorilla/mux"
 )
 
 type TimelineController struct {
@@ -20,22 +19,15 @@ func NewTimelineController(useCase *usecase.TimelineUseCase) *TimelineController
 
 // HandleGetUserTimeline ログインユーザーのタイムラインを取得
 func (c *TimelineController) HandleGetUserTimeline(w http.ResponseWriter, r *http.Request) {
-	var req struct {
-		UserID string `json:"user_id"`
-	}
+	vars := mux.Vars(r)
+	authID := vars["auth_id"]
 
-	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
-		http.Error(w, "リクエスト形式が不正です", http.StatusBadRequest)
+	if authID == "" {
+		http.Error(w, "auth_id が必要です", http.StatusBadRequest)
 		return
 	}
 
-	if req.UserID == "" {
-		http.Error(w, "user_id が必要です", http.StatusBadRequest)
-		return
-	}
-
-	posts, err := c.timelineUseCase.GetUserTimeline(req.UserID)
+	posts, err := c.timelineUseCase.GetUserTimeline(authID)
 	if err != nil {
 		log.Printf("タイムライン取得失敗: %v", err)
 		http.Error(w, "タイムライン取得に失敗しました", http.StatusInternalServerError)
