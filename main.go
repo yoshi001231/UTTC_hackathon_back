@@ -16,6 +16,7 @@ import (
 )
 
 func main() {
+	log.Println("hellllllo")
 	// DAO初期化
 	userDAO := dao.GetUserDAO()
 	authDAO := dao.GetAuthDAO()
