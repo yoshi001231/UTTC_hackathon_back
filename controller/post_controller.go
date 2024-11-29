@@ -24,21 +24,21 @@ func NewPostController(useCase *usecase.PostUseCase) *PostController {
 func (c *PostController) HandleCreatePost(w http.ResponseWriter, r *http.Request) {
 	var req model.Post
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
 	createdPost, err := c.postUseCase.CreatePost(req)
 	if err != nil {
-		log.Printf("投稿作成失敗: %v", err)
+		log.Printf("[post_controller.go] 投稿作成失敗: %v", err)
 		http.Error(w, "投稿作成に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(createdPost)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -56,9 +56,10 @@ func (c *PostController) HandleGetPost(w http.ResponseWriter, r *http.Request) {
 	post, err := c.postUseCase.GetPost(postID)
 	if err != nil {
 		if err.Error() == "投稿が削除されています" {
+			log.Printf("[post_controller.go] 投稿削除済み")
 			http.Error(w, "投稿が削除されています", http.StatusGone)
 		} else {
-			log.Printf("投稿取得失敗: %v", err)
+			log.Printf("[post_controller.go] 投稿取得失敗: %v", err)
 			http.Error(w, "投稿が見つかりません", http.StatusNotFound)
 		}
 		return
@@ -66,7 +67,7 @@ func (c *PostController) HandleGetPost(w http.ResponseWriter, r *http.Request) {
 
 	resp, err := json.Marshal(post)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -82,14 +83,14 @@ func (c *PostController) HandleUpdatePost(w http.ResponseWriter, r *http.Request
 
 	var req model.Post
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 	req.PostID = postID
 
 	if err := c.postUseCase.UpdatePost(req); err != nil {
-		log.Printf("投稿更新失敗: %v", err)
+		log.Printf("[post_controller.go] 投稿更新失敗: %v", err)
 		http.Error(w, "投稿更新に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -103,7 +104,7 @@ func (c *PostController) HandleDeletePost(w http.ResponseWriter, r *http.Request
 	postID := vars["post_id"]
 
 	if err := c.postUseCase.DeletePost(postID); err != nil {
-		log.Printf("投稿削除失敗: %v", err)
+		log.Printf("[post_controller.go] 投稿削除失敗: %v", err)
 		http.Error(w, "投稿削除に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -118,7 +119,7 @@ func (c *PostController) HandleReplyPost(w http.ResponseWriter, r *http.Request)
 
 	var req model.Post
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
@@ -126,14 +127,14 @@ func (c *PostController) HandleReplyPost(w http.ResponseWriter, r *http.Request)
 
 	replyPost, err := c.postUseCase.ReplyPost(req)
 	if err != nil {
-		log.Printf("リプライ投稿失敗: %v", err)
+		log.Printf("[post_controller.go] リプライ投稿失敗: %v", err)
 		http.Error(w, "リプライ投稿に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(replyPost)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[post_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}

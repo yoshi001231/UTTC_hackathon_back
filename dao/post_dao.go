@@ -26,13 +26,9 @@ func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
 	} else {
 		parentPostID = post.ParentPostID
 	}
-
-	_, err := dao.db.Exec(
-		"INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id) VALUES (?, ?, ?, ?, ?, ?)",
-		post.PostID, post.UserID, post.Content, post.ImgURL, post.CreatedAt, parentPostID,
-	)
+	_, err := dao.db.Exec("INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id) VALUES (?, ?, ?, ?, ?, ?)", post.PostID, post.UserID, post.Content, post.ImgURL, post.CreatedAt, parentPostID)
 	if err != nil {
-		log.Printf("投稿作成失敗 (post_id: %s, user_id: %s): %v", post.PostID, post.UserID, err)
+		log.Printf("[post_dao.go] 以下の投稿作成失敗 (post_id: %s, user_id: %s, content: %s, img_url: %s): %v", post.PostID, post.UserID, post.Content, post.ImgURL, err)
 		return nil, err
 	}
 	return &post, nil
@@ -45,11 +41,7 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 	var deletedAt sql.NullTime
 	var editedAt sql.NullTime
 
-	err := dao.db.QueryRow(
-		`SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at 
-         FROM posts WHERE post_id = ?`,
-		postID,
-	).Scan(
+	err := dao.db.QueryRow(`SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at  FROM posts WHERE post_id = ?`, postID).Scan(
 		&post.PostID,
 		&post.UserID,
 		&post.Content,
@@ -60,10 +52,10 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 		&deletedAt,
 	)
 	if err == sql.ErrNoRows {
-		log.Printf("投稿が見つかりません (post_id: %s)", postID)
-		return nil, errors.New("投稿が見つかりません")
+		log.Printf("[post_dao.go] 以下の投稿が見つからない (post_id: %s)", postID)
+		return nil, err
 	} else if err != nil {
-		log.Printf("投稿取得失敗: %v", err)
+		log.Printf("[post_dao.go] 以下の投稿取得失敗 (post_id: %s): %v", postID, err)
 		return nil, err
 	}
 
@@ -90,10 +82,9 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 // UpdatePost 投稿を更新
 func (dao *PostDAO) UpdatePost(post model.Post) error {
 	editedAt := time.Now()
-	_, err := dao.db.Exec("UPDATE posts SET content = ?, img_url = ?, edited_at = ? WHERE post_id = ? AND deleted_at IS NULL",
-		post.Content, post.ImgURL, editedAt, post.PostID)
+	_, err := dao.db.Exec("UPDATE posts SET content = ?, img_url = ?, edited_at = ? WHERE post_id = ? AND deleted_at IS NULL", post.Content, post.ImgURL, editedAt, post.PostID)
 	if err != nil {
-		log.Printf("投稿更新失敗: %v", err)
+		log.Printf("[post_dao.go] 以下の投稿更新失敗 (post_id: %s, user_id: %s, content: %s, img_url: %s): %v", post.PostID, post.UserID, post.Content, post.ImgURL, err)
 	}
 	return err
 }
@@ -102,7 +93,7 @@ func (dao *PostDAO) UpdatePost(post model.Post) error {
 func (dao *PostDAO) DeletePost(postID string) error {
 	_, err := dao.db.Exec("UPDATE posts SET deleted_at = ? WHERE post_id = ?", time.Now(), postID)
 	if err != nil {
-		log.Printf("投稿削除失敗: %v", err)
+		log.Printf("[post_dao.go] 以下の投稿削除失敗 (post_id: %s): %v", postID, err)
 	}
 	return err
 }

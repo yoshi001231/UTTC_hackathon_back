@@ -27,7 +27,7 @@ func (c *LikeController) HandleAddLike(w http.ResponseWriter, r *http.Request) {
 
 	var like model.Like
 	if err := json.NewDecoder(r.Body).Decode(&like); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[like_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
@@ -38,7 +38,7 @@ func (c *LikeController) HandleAddLike(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := c.likeUseCase.AddLike(like.UserID, postID); err != nil {
-		log.Printf("いいね追加失敗: %v", err)
+		log.Printf("[like_controller.go] いいね追加失敗: %v", err)
 		http.Error(w, "いいね追加に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -53,18 +53,18 @@ func (c *LikeController) HandleRemoveLike(w http.ResponseWriter, r *http.Request
 
 	var like model.Like
 	if err := json.NewDecoder(r.Body).Decode(&like); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[like_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
 	if like.UserID == "" {
-		http.Error(w, "user_id が必要です", http.StatusBadRequest)
+		http.Error(w, "[like_controller.go] user_id が必要です", http.StatusBadRequest)
 		return
 	}
 
 	if err := c.likeUseCase.RemoveLike(like.UserID, postID); err != nil {
-		log.Printf("いいね削除失敗: %v", err)
+		log.Printf("[like_controller.go] いいね削除失敗: %v", err)
 		http.Error(w, "いいね削除に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -79,14 +79,14 @@ func (c *LikeController) HandleGetUsersByPostID(w http.ResponseWriter, r *http.R
 
 	users, err := c.likeUseCase.GetUsersByPostID(postID)
 	if err != nil {
-		log.Printf("いいねユーザー一覧取得失敗: %v", err)
+		log.Printf("[like_controller.go] いいねユーザー一覧取得失敗: %v", err)
 		http.Error(w, "いいねユーザー一覧の取得に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(users)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[like_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}
