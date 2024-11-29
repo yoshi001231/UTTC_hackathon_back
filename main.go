@@ -1,5 +1,3 @@
-// main.go
-
 package main
 
 import (
@@ -12,6 +10,7 @@ import (
 	"twitter/dao"
 	"twitter/usecase"
 
+	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 )
 
@@ -40,7 +39,6 @@ func main() {
 
 	// ルーター初期化
 	router := mux.NewRouter()
-	// router.Use(middleware.CORSMiddelware)
 
 	// ユーザー関連エンドポイント
 	router.HandleFunc("/auth/register", authController.Handle).Methods("POST")
@@ -66,8 +64,26 @@ func main() {
 	router.HandleFunc("/follow/{user_id}/following", followController.HandleGetFollowing).Methods("GET")
 
 	// タイムライン関連エンドポイント
-	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")       // ログインユーザーのタイムライン取得
-	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET") // 指定ユーザーの投稿一覧取得
+	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
+	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET")
+
+	// CORS設定
+	corsOptions := handlers.CORS(
+		handlers.AllowedOrigins([]string{"*"}),                                       // 全てのオリジンを許可
+		handlers.AllowedHeaders([]string{"Content-Type, Authorization"}),             // 許可するヘッダー
+		handlers.AllowedMethods([]string{"GET", "DELETE", "POST", "PUT", "OPTIONS"}), // 許可するHTTPメソッド
+	)
+
+	// CORSエラーロギングミドルウェア
+	loggingHandler := func(next http.Handler) http.Handler {
+		return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+			rec := &responseRecorder{ResponseWriter: w, statusCode: http.StatusOK}
+			next.ServeHTTP(rec, r)
+			if rec.statusCode == http.StatusForbidden || rec.statusCode == http.StatusMethodNotAllowed {
+				log.Printf("[CORS Error] メソッド: %s, パス: %s, ステータスコード: %d", r.Method, r.URL.Path, rec.statusCode)
+			}
+		})
+	}
 
 	// シグナル処理
 	sig := make(chan os.Signal, 1)
@@ -80,7 +96,19 @@ func main() {
 
 	// サーバー起動
 	log.Println("[main.go] サーバー起動中...")
-	if err := http.ListenAndServe(":8080", router); err != nil {
-		log.Fatal("サーバー起動失敗")
+	if err := http.ListenAndServe(":8080", loggingHandler(corsOptions(router))); err != nil {
+		log.Fatal("[main.go] サーバー起動失敗")
 	}
+}
+
+// responseRecorder レスポンスのステータスコードを記録するためのラッパー
+type responseRecorder struct {
+	http.ResponseWriter
+	statusCode int
+}
+
+// WriteHeader ステータスコードを記録
+func (rec *responseRecorder) WriteHeader(code int) {
+	rec.statusCode = code
+	rec.ResponseWriter.WriteHeader(code)
 }
