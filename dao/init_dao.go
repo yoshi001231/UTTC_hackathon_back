@@ -25,23 +25,29 @@ var (
 
 func InitDB() *sql.DB {
 	once.Do(func() {
-		// ローカル用
-		//user := "uttc_user"
-		//password := "uttc_password"
-		//host := "localhost:3306"
-		//database := "uttc_hackathon_local_db"
-		//dsn := fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", user, password, host, database)
-
-		// 環境変数から設定を取得（デプロイ用）
-		user := os.Getenv("MYSQL_USER")
-		password := os.Getenv("MYSQL_PWD")
-		host := os.Getenv("MYSQL_HOST")
-		database := os.Getenv("MYSQL_DATABASE")
-		dsn := fmt.Sprintf("%s:%s@%s/%s", user, password, host, database)
+		mode := os.Getenv("MODE")
+		var dsn string
+		if mode == "production" {
+			// ローカル用
+			user := "uttc_user"
+			password := "uttc_password"
+			host := "localhost:3306"
+			database := "uttc_hackathon_local_db"
+			dsn = fmt.Sprintf("%s:%s@tcp(%s)/%s?parseTime=true", user, password, host, database)
+			log.Println("[init_dao.go] モード: ローカル")
+		} else {
+			// 環境変数から設定を取得（デプロイ用）
+			user := os.Getenv("MYSQL_USER")
+			password := os.Getenv("MYSQL_PWD")
+			host := os.Getenv("MYSQL_HOST")
+			database := os.Getenv("MYSQL_DATABASE")
+			dsn = fmt.Sprintf("%s:%s@%s/%s", user, password, host, database)
+			log.Println("[init_dao.go] モード: デプロイ")
+		}
 
 		db, err := sql.Open("mysql", dsn)
 		if err != nil {
-			log.Fatalf("データベース接続失敗: %v", err)
+			log.Fatalf("[init_dao.go] データベース接続失敗: %v", err)
 		}
 		dbInstance = db
 	})
@@ -51,9 +57,9 @@ func InitDB() *sql.DB {
 func CloseDB() {
 	if dbInstance != nil {
 		if err := dbInstance.Close(); err != nil {
-			log.Fatal("データベース接続終了失敗")
+			log.Fatal("[init_dao.go] データベース接続終了失敗")
 		}
-		log.Println("データベース接続終了")
+		log.Println("[init_dao.go] データベース接続終了")
 	}
 }
 

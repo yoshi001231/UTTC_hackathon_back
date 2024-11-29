@@ -17,30 +17,30 @@ import (
 
 func main() {
 	// DAO初期化
-	userDAO := dao.GetUserDAO()
 	authDAO := dao.GetAuthDAO()
-	postDAO := dao.GetPostDAO()
-	likeDAO := dao.GetLikeDAO()
 	followDAO := dao.GetFollowDAO()
+	likeDAO := dao.GetLikeDAO()
+	postDAO := dao.GetPostDAO()
 	timelineDAO := dao.GetTimelineDAO()
-
-	// UseCase, Controller初期化
+	userDAO := dao.GetUserDAO()
+	// UseCase初期化
 	authUseCase := usecase.NewAuthUseCase(authDAO)
-	userUseCase := usecase.NewUserUseCase(userDAO)
-	postUseCase := usecase.NewPostUseCase(postDAO)
-	likeUseCase := usecase.NewLikeUseCase(likeDAO)
 	followUseCase := usecase.NewFollowUseCase(followDAO)
+	likeUseCase := usecase.NewLikeUseCase(likeDAO)
+	postUseCase := usecase.NewPostUseCase(postDAO)
 	timelineUseCase := usecase.NewTimelineUseCase(timelineDAO)
-
+	userUseCase := usecase.NewUserUseCase(userDAO)
+	// Controller初期化
 	authController := controller.NewAuthController(authUseCase)
-	userController := controller.NewUserController(userUseCase)
-	postController := controller.NewPostController(postUseCase)
-	likeController := controller.NewLikeController(likeUseCase)
 	followController := controller.NewFollowController(followUseCase)
-	timelineController := controller.NewTimelineController(timelineUseCase) // タイムラインコントローラを追加
+	likeController := controller.NewLikeController(likeUseCase)
+	postController := controller.NewPostController(postUseCase)
+	timelineController := controller.NewTimelineController(timelineUseCase)
+	userController := controller.NewUserController(userUseCase)
 
 	// ルーター初期化
 	router := mux.NewRouter()
+	// router.Use(middleware.CORSMiddelware)
 
 	// ユーザー関連エンドポイント
 	router.HandleFunc("/auth/register", authController.Handle).Methods("POST")
@@ -79,7 +79,7 @@ func main() {
 	}()
 
 	// サーバー起動
-	log.Println("サーバー起動中...")
+	log.Println("[main.go] サーバー起動中...")
 	if err := http.ListenAndServe(":8080", router); err != nil {
 		log.Fatal("サーバー起動失敗")
 	}

@@ -3,6 +3,7 @@
 package usecase
 
 import (
+	"errors"
 	"twitter/dao"
 	"twitter/model"
 )
@@ -17,11 +18,17 @@ func NewFollowUseCase(FollowDAO *dao.FollowDAO) *FollowUseCase {
 
 // AddFollow 指定ユーザーをフォロー
 func (uc *FollowUseCase) AddFollow(userID, followingUserID string) error {
+	if userID == "" || followingUserID == "" {
+		return errors.New("[follow_usecase.go] user_id または following_user_id が無効: 必須項目")
+	}
 	return uc.FollowDAO.AddFollow(userID, followingUserID)
 }
 
 // RemoveFollow 指定ユーザーのフォローを解除
 func (uc *FollowUseCase) RemoveFollow(userID, followingUserID string) error {
+	if userID == "" || followingUserID == "" {
+		return errors.New("[follow_usecase.go] user_id または following_user_id が無効: 必須項目")
+	}
 	return uc.FollowDAO.RemoveFollow(userID, followingUserID)
 }
 

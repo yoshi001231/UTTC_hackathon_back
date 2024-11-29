@@ -27,18 +27,13 @@ func (c *FollowController) HandleAddFollow(w http.ResponseWriter, r *http.Reques
 
 	var follow model.Follow
 	if err := json.NewDecoder(r.Body).Decode(&follow); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[follow_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if follow.UserID == "" {
-		http.Error(w, "user_id が必要です", http.StatusBadRequest)
-		return
-	}
-
 	if err := c.followUseCase.AddFollow(follow.UserID, followingUserID); err != nil {
-		log.Printf("フォロー追加失敗: %v", err)
+		log.Printf("[follow_controller.go] フォロー追加失敗: %v", err)
 		http.Error(w, "フォロー追加に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -53,18 +48,13 @@ func (c *FollowController) HandleRemoveFollow(w http.ResponseWriter, r *http.Req
 
 	var follow model.Follow
 	if err := json.NewDecoder(r.Body).Decode(&follow); err != nil {
-		log.Printf("JSONデコード失敗: %v", err)
+		log.Printf("[follow_controller.go] JSONデコード失敗: %v", err)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
 
-	if follow.UserID == "" {
-		http.Error(w, "user_id が必要です", http.StatusBadRequest)
-		return
-	}
-
 	if err := c.followUseCase.RemoveFollow(follow.UserID, followingUserID); err != nil {
-		log.Printf("フォロー解除失敗: %v", err)
+		log.Printf("[follow_controller.go] フォロー解除失敗: %v", err)
 		http.Error(w, "フォロー解除に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -79,14 +69,14 @@ func (c *FollowController) HandleGetFollowers(w http.ResponseWriter, r *http.Req
 
 	users, err := c.followUseCase.GetFollowers(userID)
 	if err != nil {
-		log.Printf("フォロワー一覧取得失敗: %v", err)
+		log.Printf("[follow_controller.go] フォロワー一覧取得失敗: %v", err)
 		http.Error(w, "フォロワー一覧の取得に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(users)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[follow_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}
@@ -102,14 +92,14 @@ func (c *FollowController) HandleGetFollowing(w http.ResponseWriter, r *http.Req
 
 	users, err := c.followUseCase.GetFollowing(userID)
 	if err != nil {
-		log.Printf("フォロー中一覧取得失敗: %v", err)
+		log.Printf("[follow_controller.go] フォロー中一覧取得失敗: %v", err)
 		http.Error(w, "フォロー中一覧の取得に失敗しました", http.StatusInternalServerError)
 		return
 	}
 
 	resp, err := json.Marshal(users)
 	if err != nil {
-		log.Printf("JSONエンコード失敗: %v", err)
+		log.Printf("[follow_controller.go] JSONエンコード失敗: %v", err)
 		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
 		return
 	}

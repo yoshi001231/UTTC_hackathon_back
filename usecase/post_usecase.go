@@ -44,7 +44,7 @@ func (uc *PostUseCase) DeletePost(postID string) error {
 // ReplyPost 指定した投稿にリプライを追加
 func (uc *PostUseCase) ReplyPost(post model.Post) (*model.Post, error) {
 	if post.ParentPostID == "" {
-		return nil, errors.New("リプライ対象の投稿IDが指定されていません")
+		return nil, errors.New("[post_usecase.go] リプライ対象の投稿IDが指定されていません")
 	}
 	post.CreatedAt = time.Now()
 	return uc.PostDAO.CreatePost(post)
