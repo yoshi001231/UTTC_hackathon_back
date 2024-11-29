@@ -41,7 +41,7 @@ func InitDB() *sql.DB {
 			password := os.Getenv("MYSQL_PWD")
 			host := os.Getenv("MYSQL_HOST")
 			database := os.Getenv("MYSQL_DATABASE")
-			dsn = fmt.Sprintf("%s:%s@%s/%s", user, password, host, database)
+			dsn = fmt.Sprintf("%s:%s@%s/%s?parseTime=true", user, password, host, database)
 			log.Println("[init_dao.go] モード: デプロイ")
 		}
 
