@@ -49,6 +49,9 @@ func InitDB() *sql.DB {
 		if err != nil {
 			log.Fatalf("[init_dao.go] データベース接続失敗: %v", err)
 		}
+		if err := db.Ping(); err != nil {
+			log.Fatalf("[init_dao.go] データベースへのPing失敗: %v", err)
+		}
 		dbInstance = db
 	})
 	return dbInstance
