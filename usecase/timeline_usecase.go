@@ -1,5 +1,3 @@
-// usecase/timeline_usecase.go
-
 package usecase
 
 import (

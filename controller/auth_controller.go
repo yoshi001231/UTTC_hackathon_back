@@ -1,5 +1,3 @@
-// controller/auth_controller.go
-
 package controller
 
 import (

@@ -1,5 +1,3 @@
-// controller/post_controller.go
-
 package controller
 
 import (

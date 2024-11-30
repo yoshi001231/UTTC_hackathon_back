@@ -1,5 +1,3 @@
-// model/models.go
-
 package model
 
 import "time"

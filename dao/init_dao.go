@@ -1,5 +1,3 @@
-// dao/init_dao.go
-
 package dao
 
 import (

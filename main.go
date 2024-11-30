@@ -74,7 +74,7 @@ func main() {
 
 	// CORS設定
 	corsOptions := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}),                   // 必要に応じてフロントエンドのURLを指定
+		handlers.AllowedOrigins([]string{"*"}),                                       // 許可するURL
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),           // 許可するヘッダー
 		handlers.AllowedMethods([]string{"GET", "DELETE", "POST", "PUT", "OPTIONS"}), // 許可するHTTPメソッド
 	)

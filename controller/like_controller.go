@@ -1,5 +1,3 @@
-// controller/like_controller.go
-
 package controller
 
 import (

@@ -1,5 +1,3 @@
-// dao/follow_dao.go
-
 package dao
 
 import (

@@ -1,5 +1,3 @@
-// dao/post_dao.go
-
 package dao
 
 import (

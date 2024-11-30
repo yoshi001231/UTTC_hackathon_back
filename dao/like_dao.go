@@ -1,5 +1,3 @@
-// dao/like_dao.go
-
 package dao
 
 import (
