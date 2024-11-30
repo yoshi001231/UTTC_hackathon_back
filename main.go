@@ -67,10 +67,15 @@ func main() {
 	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
 	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET")
 
+	// OPTIONSリクエストに対応
+	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
+
 	// CORS設定
 	corsOptions := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}),                                       // 全てのオリジンを許可
-		handlers.AllowedHeaders([]string{"Content-Type, Authorization"}),             // 許可するヘッダー
+		handlers.AllowedOrigins([]string{"http://localhost:3000"}),                   // 必要に応じてフロントエンドのURLを指定
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),           // 許可するヘッダー
 		handlers.AllowedMethods([]string{"GET", "DELETE", "POST", "PUT", "OPTIONS"}), // 許可するHTTPメソッド
 	)
 
@@ -96,7 +101,8 @@ func main() {
 
 	// サーバー起動
 	log.Println("[main.go] サーバー起動中...")
-	if err := http.ListenAndServe(":8080", loggingHandler(corsOptions(router))); err != nil {
+	wrappedRouter := loggingHandler(corsOptions(router))
+	if err := http.ListenAndServe(":8080", wrappedRouter); err != nil {
 		log.Fatal("[main.go] サーバー起動失敗")
 	}
 }
