@@ -1,5 +1,3 @@
-// model/models.go
-
 package model
 
 import "time"
@@ -10,6 +8,8 @@ type User struct {
 	Name          string `json:"name"`
 	Bio           string `json:"bio"`
 	ProfileImgURL string `json:"profile_img_url"`
+	TweetCount    int    `json:"tweet_count,omitempty"` // ツイート数
+	LikeCount     int    `json:"like_count,omitempty"`  // いいね数
 }
 
 // Post モデル

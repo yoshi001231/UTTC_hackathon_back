@@ -1,5 +1,3 @@
-// usecase/user_usecase.go
-
 package usecase
 
 import (
@@ -44,4 +42,14 @@ func (uc *UserUseCase) GetUpdatedUser(userID string) (*model.User, error) {
 		return nil, errors.New("[user_usecase.go] user_id が無効: 必須項目")
 	}
 	return uc.UserDAO.GetUser(userID)
+}
+
+// GetTopUsersByTweetCount ツイート数の多い順にユーザ一覧を取得
+func (uc *UserUseCase) GetTopUsersByTweetCount(limit int) ([]model.User, error) {
+	return uc.UserDAO.GetTopUsersByTweetCount(limit)
+}
+
+// GetTopUsersByLikes いいね数の多い順にユーザ一覧を取得
+func (uc *UserUseCase) GetTopUsersByLikes(limit int) ([]model.User, error) {
+	return uc.UserDAO.GetTopUsersByLikes(limit)
 }

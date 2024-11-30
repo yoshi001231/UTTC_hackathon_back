@@ -1,5 +1,3 @@
-// dao/timeline_dao.go
-
 package dao
 
 import (

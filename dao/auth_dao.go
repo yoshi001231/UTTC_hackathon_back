@@ -1,5 +1,3 @@
-// dao/auth_dao.go
-
 package dao
 
 import (

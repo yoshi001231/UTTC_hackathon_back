@@ -1,5 +1,3 @@
-// usecase/follow_usecase.go
-
 package usecase
 
 import (

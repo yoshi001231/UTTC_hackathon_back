@@ -44,6 +44,9 @@ func main() {
 	router.HandleFunc("/auth/register", authController.Handle).Methods("POST")
 	router.HandleFunc("/user/{user_id}", userController.HandleGetUser).Methods("GET")
 	router.HandleFunc("/user/update-profile", userController.HandleUpdateProfile).Methods("PUT")
+	// +ユーザランキング関連エンドポイント
+	router.HandleFunc("/users/top/tweets", userController.HandleGetTopUsersByTweetCount).Methods("GET")
+	router.HandleFunc("/users/top/likes", userController.HandleGetTopUsersByLikes).Methods("GET")
 
 	// 投稿関連エンドポイント
 	router.HandleFunc("/post/create", postController.HandleCreatePost).Methods("POST")
@@ -74,7 +77,7 @@ func main() {
 
 	// CORS設定
 	corsOptions := handlers.CORS(
-		handlers.AllowedOrigins([]string{"http://localhost:3000"}),                   // 必要に応じてフロントエンドのURLを指定
+		handlers.AllowedOrigins([]string{"*"}),                                       // 許可するURL
 		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),           // 許可するヘッダー
 		handlers.AllowedMethods([]string{"GET", "DELETE", "POST", "PUT", "OPTIONS"}), // 許可するHTTPメソッド
 	)

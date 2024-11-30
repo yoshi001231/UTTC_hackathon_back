@@ -1,5 +1,3 @@
-// controller/follow_controller.go
-
 package controller
 
 import (
