@@ -43,3 +43,13 @@ func (uc *UserUseCase) GetUpdatedUser(userID string) (*model.User, error) {
 	}
 	return uc.UserDAO.GetUser(userID)
 }
+
+// GetTopUsersByTweetCount ツイート数の多い順にユーザ一覧を取得
+func (uc *UserUseCase) GetTopUsersByTweetCount(limit int) ([]model.User, error) {
+	return uc.UserDAO.GetTopUsersByTweetCount(limit)
+}
+
+// GetTopUsersByLikes いいね数の多い順にユーザ一覧を取得
+func (uc *UserUseCase) GetTopUsersByLikes(limit int) ([]model.User, error) {
+	return uc.UserDAO.GetTopUsersByLikes(limit)
+}

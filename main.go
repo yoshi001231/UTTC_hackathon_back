@@ -44,6 +44,11 @@ func main() {
 	router.HandleFunc("/auth/register", authController.Handle).Methods("POST")
 	router.HandleFunc("/user/{user_id}", userController.HandleGetUser).Methods("GET")
 	router.HandleFunc("/user/update-profile", userController.HandleUpdateProfile).Methods("PUT")
+	// ユーザランキング関連エンドポイント
+	router.HandleFunc("/users/top/tweets/{limit}", userController.HandleGetTopUsersByTweetCount).Methods("GET")
+	router.HandleFunc("/users/top/tweets", userController.HandleGetTopUsersByTweetCount).Methods("GET") // デフォルト値用
+	router.HandleFunc("/users/top/likes/{limit}", userController.HandleGetTopUsersByLikes).Methods("GET")
+	router.HandleFunc("/users/top/likes", userController.HandleGetTopUsersByLikes).Methods("GET") // デフォルト値用
 
 	// 投稿関連エンドポイント
 	router.HandleFunc("/post/create", postController.HandleCreatePost).Methods("POST")

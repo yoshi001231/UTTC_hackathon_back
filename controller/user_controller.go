@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 	"twitter/model"
 	"twitter/usecase"
 
@@ -76,4 +77,41 @@ func (c *UserController) HandleUpdateProfile(w http.ResponseWriter, r *http.Requ
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	w.Write(resp)
+}
+
+// デフォルトのlimit値
+const DefaultLimit = 100
+
+// HandleGetTopUsersByTweetCount ツイート数の多い順にユーザ一覧を取得
+func (c *UserController) HandleGetTopUsersByTweetCount(w http.ResponseWriter, r *http.Request) {
+	limit := parseLimit(mux.Vars(r)["limit"])
+	users, err := c.userUseCase.GetTopUsersByTweetCount(limit)
+	if err != nil {
+		http.Error(w, "ユーザ一覧の取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(users)
+}
+
+// HandleGetTopUsersByLikes いいね数の多い順にユーザ一覧を取得
+func (c *UserController) HandleGetTopUsersByLikes(w http.ResponseWriter, r *http.Request) {
+	limit := parseLimit(mux.Vars(r)["limit"])
+	users, err := c.userUseCase.GetTopUsersByLikes(limit)
+	if err != nil {
+		http.Error(w, "ユーザ一覧の取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+	json.NewEncoder(w).Encode(users)
+}
+
+// parseLimit リクエストのlimit値を解析し、デフォルト値や無効値を処理
+func parseLimit(limitStr string) int {
+	if limitStr == "" {
+		return DefaultLimit
+	}
+	limit, err := strconv.Atoi(limitStr)
+	if err != nil || limit <= 0 {
+		return DefaultLimit
+	}
+	return limit
 }

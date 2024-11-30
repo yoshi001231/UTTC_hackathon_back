@@ -36,3 +36,45 @@ func (dao *UserDAO) UpdateUser(user model.User) error {
 	}
 	return err
 }
+
+// GetTopUsersByTweetCount ツイート数の多い順にユーザ一覧を取得
+func (dao *UserDAO) GetTopUsersByTweetCount(limit int) ([]model.User, error) {
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, COUNT(p.post_id) AS tweet_count FROM users u LEFT JOIN posts p ON u.user_id = p.user_id AND p.deleted_at IS NULL GROUP BY u.user_id ORDER BY tweet_count DESC LIMIT ?`, limit)
+	if err != nil {
+		log.Printf("[user_dao.go] ツイート数順ユーザ取得失敗: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var user model.User
+		if err := rows.Scan(&user.UserID, &user.Name, &user.Bio, &user.ProfileImgURL, &user.TweetCount); err != nil {
+			log.Printf("[user_dao.go] ユーザーデータのScan失敗: %v", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
+// GetTopUsersByLikes ユーザ一覧をいいね数の多い順に取得
+func (dao *UserDAO) GetTopUsersByLikes(limit int) ([]model.User, error) {
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, COUNT(l.post_id) AS like_count FROM users u LEFT JOIN posts p ON u.user_id = p.user_id LEFT JOIN likes l ON p.post_id = l.post_id WHERE p.deleted_at IS NULL GROUP BY u.user_id ORDER BY like_count DESC LIMIT ?`, limit)
+	if err != nil {
+		log.Printf("[user_dao.go] いいね数順ユーザ取得失敗: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var user model.User
+		if err := rows.Scan(&user.UserID, &user.Name, &user.Bio, &user.ProfileImgURL, &user.LikeCount); err != nil {
+			log.Printf("[user_dao.go] ユーザーデータのScan失敗: %v", err)
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
