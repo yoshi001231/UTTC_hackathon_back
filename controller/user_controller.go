@@ -84,7 +84,7 @@ const DefaultLimit = 100
 
 // HandleGetTopUsersByTweetCount ツイート数の多い順にユーザ一覧を取得
 func (c *UserController) HandleGetTopUsersByTweetCount(w http.ResponseWriter, r *http.Request) {
-	limit := parseLimit(mux.Vars(r)["limit"])
+	limit := parseLimit(r.URL.Query().Get("limit"))
 	users, err := c.userUseCase.GetTopUsersByTweetCount(limit)
 	if err != nil {
 		http.Error(w, "ユーザ一覧の取得に失敗しました", http.StatusInternalServerError)
@@ -95,7 +95,7 @@ func (c *UserController) HandleGetTopUsersByTweetCount(w http.ResponseWriter, r 
 
 // HandleGetTopUsersByLikes いいね数の多い順にユーザ一覧を取得
 func (c *UserController) HandleGetTopUsersByLikes(w http.ResponseWriter, r *http.Request) {
-	limit := parseLimit(mux.Vars(r)["limit"])
+	limit := parseLimit(r.URL.Query().Get("limit"))
 	users, err := c.userUseCase.GetTopUsersByLikes(limit)
 	if err != nil {
 		http.Error(w, "ユーザ一覧の取得に失敗しました", http.StatusInternalServerError)
