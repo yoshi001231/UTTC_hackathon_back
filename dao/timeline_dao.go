@@ -16,7 +16,7 @@ func NewTimelineDAO(db *sql.DB) *TimelineDAO {
 
 // FetchUserTimeline ログインユーザーのタイムラインを取得
 func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
-	rows, err := dao.db.Query(`SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.parent_post_id FROM posts p JOIN followers f ON p.user_id = f.following_user_id WHERE (f.user_id = ? OR p.user_id = ?) AND p.deleted_at IS NULL ORDER BY p.created_at DESC`, userID)
+	rows, err := dao.db.Query(`SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.parent_post_id FROM posts p JOIN followers f ON p.user_id = f.following_user_id WHERE (f.user_id = ? OR p.user_id = ?) AND p.deleted_at IS NULL ORDER BY p.created_at DESC`, userID, userID)
 	if err != nil {
 		log.Printf("[timeline_dao.go] 以下のタイムライン取得失敗 (user_id: %s): %v", userID, err)
 		return nil, err
