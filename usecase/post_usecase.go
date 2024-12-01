@@ -47,3 +47,11 @@ func (uc *PostUseCase) ReplyPost(post model.Post) (*model.Post, error) {
 	post.CreatedAt = time.Now()
 	return uc.PostDAO.CreatePost(post)
 }
+
+// GetChildrenPosts 子ポストを取得
+func (uc *PostUseCase) GetChildrenPosts(parentPostID string) ([]model.Post, error) {
+	if parentPostID == "" {
+		return nil, errors.New("[post_usecase.go] parent_post_id が無効: 必須項目")
+	}
+	return uc.PostDAO.GetChildrenPosts(parentPostID)
+}

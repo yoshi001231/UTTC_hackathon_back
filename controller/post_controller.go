@@ -141,3 +141,26 @@ func (c *PostController) HandleReplyPost(w http.ResponseWriter, r *http.Request)
 	w.WriteHeader(http.StatusCreated)
 	w.Write(resp)
 }
+
+// HandleGetChildrenPosts 指定した投稿の子ポストを取得
+func (c *PostController) HandleGetChildrenPosts(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	parentPostID := vars["post_id"]
+
+	posts, err := c.postUseCase.GetChildrenPosts(parentPostID)
+	if err != nil {
+		log.Printf("[post_controller.go] 子ポスト一覧取得失敗: %v", err)
+		http.Error(w, "子ポスト一覧の取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := json.Marshal(posts)
+	if err != nil {
+		log.Printf("[post_controller.go] JSONエンコード失敗: %v", err)
+		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
+}
