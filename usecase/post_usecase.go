@@ -2,6 +2,8 @@ package usecase
 
 import (
 	"errors"
+	"github.com/oklog/ulid"
+	"math/rand"
 	"time"
 	"twitter/dao"
 	"twitter/model"
@@ -20,6 +22,9 @@ func (uc *PostUseCase) CreatePost(post model.Post) (*model.Post, error) {
 	if post.Content == "" {
 		return nil, errors.New("投稿内容が空です")
 	}
+	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))           // 乱数生成器の作成
+	postID := ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String() // ULIDの生成
+	post.PostID = postID
 	post.CreatedAt = time.Now()
 	return uc.PostDAO.CreatePost(post)
 }
@@ -44,6 +49,9 @@ func (uc *PostUseCase) ReplyPost(post model.Post) (*model.Post, error) {
 	if post.ParentPostID == "" {
 		return nil, errors.New("[post_usecase.go] リプライ対象の投稿IDが指定されていません")
 	}
+	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))            // 乱数生成器の作成
+	replyID := ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String() // ULIDの生成
+	post.PostID = replyID
 	post.CreatedAt = time.Now()
 	return uc.PostDAO.CreatePost(post)
 }
