@@ -54,6 +54,7 @@ func main() {
 	router.HandleFunc("/post/{post_id}/update", postController.HandleUpdatePost).Methods("PUT")
 	router.HandleFunc("/post/{post_id}/delete", postController.HandleDeletePost).Methods("DELETE")
 	router.HandleFunc("/post/{post_id}/reply", postController.HandleReplyPost).Methods("POST")
+	router.HandleFunc("/post/{post_id}/children", postController.HandleGetChildrenPosts).Methods("GET")
 
 	// いいね関連エンドポイント
 	router.HandleFunc("/like/{post_id}", likeController.HandleAddLike).Methods("POST")

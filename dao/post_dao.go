@@ -95,3 +95,39 @@ func (dao *PostDAO) DeletePost(postID string) error {
 	}
 	return err
 }
+
+// GetChildrenPosts 子ポストを取得
+func (dao *PostDAO) GetChildrenPosts(parentPostID string) ([]model.Post, error) {
+	rows, err := dao.db.Query(`SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at FROM posts WHERE parent_post_id = ? AND deleted_at IS NULL`, parentPostID)
+	if err != nil {
+		log.Printf("[post_dao.go] 子ポスト一覧取得失敗 (parent_post_id: %s): %v", parentPostID, err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var posts []model.Post
+	for rows.Next() {
+		var post model.Post
+		var editedAt sql.NullTime
+		var parentPostID sql.NullString
+		var deletedAt sql.NullTime
+
+		if err := rows.Scan(&post.PostID, &post.UserID, &post.Content, &post.ImgURL, &post.CreatedAt, &editedAt, &parentPostID, &deletedAt); err != nil {
+			log.Printf("[post_dao.go] 子ポストデータのScan失敗: %v", err)
+			return nil, err
+		}
+
+		// `edited_at` の処理
+		if editedAt.Valid {
+			post.EditedAt = &editedAt.Time
+		}
+
+		// `parent_post_id` の処理
+		if parentPostID.Valid {
+			post.ParentPostID = parentPostID.String
+		}
+
+		posts = append(posts, post)
+	}
+	return posts, nil
+}
