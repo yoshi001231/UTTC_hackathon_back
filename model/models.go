@@ -4,12 +4,15 @@ import "time"
 
 // User モデル
 type User struct {
-	UserID        string `json:"user_id"`
-	Name          string `json:"name"`
-	Bio           string `json:"bio"`
-	ProfileImgURL string `json:"profile_img_url"`
-	TweetCount    int    `json:"tweet_count,omitempty"` // ツイート数
-	LikeCount     int    `json:"like_count,omitempty"`  // いいね数
+	UserID        string     `json:"user_id"`
+	Name          string     `json:"name"`
+	Bio           string     `json:"bio"`
+	ProfileImgURL string     `json:"profile_img_url"`
+	HeaderImgURL  string     `json:"header_img_url"`
+	Location      string     `json:"location"`
+	Birthday      *time.Time `json:"birthday,omitempty"`
+	TweetCount    int        `json:"tweet_count,omitempty"`
+	LikeCount     int        `json:"like_count,omitempty"`
 }
 
 // Post モデル
