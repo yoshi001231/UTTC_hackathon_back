@@ -45,10 +45,26 @@ func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
 	var users []model.User
 	for rows.Next() {
 		var user model.User
-		if err := rows.Scan(&user.UserID, &user.Name, &user.Bio, &user.ProfileImgURL); err != nil {
+		var bio, profileImgURL sql.NullString
+
+		// Scan 時に NullString を使用
+		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL); err != nil {
 			log.Printf("[like_dao.go] ユーザーデータのScan失敗: %v", err)
 			return nil, err
 		}
+
+		// NullString をポインタ型に変換
+		if bio.Valid {
+			user.Bio = &bio.String
+		} else {
+			user.Bio = nil
+		}
+		if profileImgURL.Valid {
+			user.ProfileImgURL = &profileImgURL.String
+		} else {
+			user.ProfileImgURL = nil
+		}
+
 		users = append(users, user)
 	}
 	return users, nil

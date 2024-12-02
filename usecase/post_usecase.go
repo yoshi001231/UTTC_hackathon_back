@@ -22,10 +22,15 @@ func (uc *PostUseCase) CreatePost(post model.Post) (*model.Post, error) {
 	if post.Content == "" {
 		return nil, errors.New("投稿内容が空です")
 	}
-	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))           // 乱数生成器の作成
-	postID := ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String() // ULIDの生成
+	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))
+	postID := ulid.MustNew(ulid.Timestamp(time.Now()), entropy).String()
 	post.PostID = postID
 	post.CreatedAt = time.Now()
+
+	if post.ParentPostID == nil || *post.ParentPostID == "" { // 修正
+		post.ParentPostID = nil
+	}
+
 	return uc.PostDAO.CreatePost(post)
 }
 
@@ -46,7 +51,7 @@ func (uc *PostUseCase) DeletePost(postID string) error {
 
 // ReplyPost 指定した投稿にリプライを追加
 func (uc *PostUseCase) ReplyPost(post model.Post) (*model.Post, error) {
-	if post.ParentPostID == "" {
+	if post.ParentPostID == nil || *post.ParentPostID == "" { // 修正
 		return nil, errors.New("[post_usecase.go] リプライ対象の投稿IDが指定されていません")
 	}
 	entropy := rand.New(rand.NewSource(time.Now().UnixNano()))            // 乱数生成器の作成

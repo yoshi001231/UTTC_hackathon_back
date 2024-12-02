@@ -121,7 +121,9 @@ func (c *PostController) HandleReplyPost(w http.ResponseWriter, r *http.Request)
 		http.Error(w, "リクエストの形式が不正です", http.StatusBadRequest)
 		return
 	}
-	req.ParentPostID = parentPostID
+
+	// ポインタ型に変換
+	req.ParentPostID = &parentPostID
 
 	replyPost, err := c.postUseCase.ReplyPost(req)
 	if err != nil {

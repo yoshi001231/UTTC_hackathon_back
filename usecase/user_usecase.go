@@ -30,10 +30,10 @@ func (uc *UserUseCase) UpdateProfile(user model.User) error {
 	if user.Name == "" || len(user.Name) > 50 {
 		return errors.New("[user_usecase.go] 名前が無効: 必須項目で50文字以内である必要がある")
 	}
-	if len(user.Bio) > 160 {
+	if user.Bio != nil && len(*user.Bio) > 160 {
 		return errors.New("[user_usecase.go] 自己紹介が無効: 160文字以内である必要がある")
 	}
-	if len(user.Location) > 100 {
+	if user.Location != nil && len(*user.Location) > 100 {
 		return errors.New("[user_usecase.go] 位置情報が無効: 100文字以内である必要がある")
 	}
 	return uc.UserDAO.UpdateUser(user)
