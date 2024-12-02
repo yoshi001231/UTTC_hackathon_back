@@ -16,7 +16,14 @@ func NewTimelineDAO(db *sql.DB) *TimelineDAO {
 
 // FetchUserTimeline ログインユーザーのタイムラインを取得
 func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
-	rows, err := dao.db.Query(`SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id FROM posts p WHERE p.deleted_at IS NULL AND (p.user_id = ? OR EXISTS (SELECT 1 FROM followers f WHERE f.user_id = ? AND f.following_user_id = p.user_id)) ORDER BY p.created_at DESC`, userID, userID)
+	rows, err := dao.db.Query(`
+		SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id 
+		FROM posts p 
+		WHERE p.deleted_at IS NULL 
+		AND (p.user_id = ? OR EXISTS (
+			SELECT 1 FROM followers f WHERE f.user_id = ? AND f.following_user_id = p.user_id
+		)) 
+		ORDER BY p.created_at DESC`, userID, userID)
 	if err != nil {
 		log.Printf("[timeline_dao.go] 以下のタイムライン取得失敗 (user_id: %s): %v", userID, err)
 		return nil, err
@@ -26,18 +33,25 @@ func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
 	var posts []model.Post
 	for rows.Next() {
 		var post model.Post
-		var parentPostID sql.NullString
+		var imgURL, parentPostID sql.NullString
 		var editedAt sql.NullTime
 
-		// `edited_at` を追加で取得
-		if err := rows.Scan(&post.PostID, &post.UserID, &post.Content, &post.ImgURL, &post.CreatedAt, &editedAt, &parentPostID); err != nil {
+		if err := rows.Scan(
+			&post.PostID,
+			&post.UserID,
+			&post.Content,
+			&imgURL,
+			&post.CreatedAt,
+			&editedAt,
+			&parentPostID,
+		); err != nil {
 			log.Printf("[timeline_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err
 		}
 
-		if parentPostID.Valid {
-			post.ParentPostID = parentPostID.String
-		}
+		// NULL 値の処理
+		post.ImgURL = nullableToPointer(imgURL)
+		post.ParentPostID = nullableToPointer(parentPostID)
 		if editedAt.Valid {
 			post.EditedAt = &editedAt.Time
 		}
@@ -49,7 +63,11 @@ func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
 
 // FetchUserPosts 指定ユーザーの投稿一覧を取得
 func (dao *TimelineDAO) FetchUserPosts(userID string) ([]model.Post, error) {
-	rows, err := dao.db.Query(`SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id FROM posts WHERE user_id = ? AND deleted_at IS NULL ORDER BY created_at DESC`, userID)
+	rows, err := dao.db.Query(`
+		SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id 
+		FROM posts 
+		WHERE user_id = ? AND deleted_at IS NULL 
+		ORDER BY created_at DESC`, userID)
 	if err != nil {
 		log.Printf("[timeline_dao.go] 以下の投稿一覧取得失敗 (user_id: %s): %v", userID, err)
 		return nil, err
@@ -59,18 +77,25 @@ func (dao *TimelineDAO) FetchUserPosts(userID string) ([]model.Post, error) {
 	var posts []model.Post
 	for rows.Next() {
 		var post model.Post
-		var parentPostID sql.NullString
+		var imgURL, parentPostID sql.NullString
 		var editedAt sql.NullTime
 
-		// `edited_at` を追加で取得
-		if err := rows.Scan(&post.PostID, &post.UserID, &post.Content, &post.ImgURL, &post.CreatedAt, &editedAt, &parentPostID); err != nil {
+		if err := rows.Scan(
+			&post.PostID,
+			&post.UserID,
+			&post.Content,
+			&imgURL,
+			&post.CreatedAt,
+			&editedAt,
+			&parentPostID,
+		); err != nil {
 			log.Printf("[timeline_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err
 		}
 
-		if parentPostID.Valid {
-			post.ParentPostID = parentPostID.String
-		}
+		// NULL 値の処理
+		post.ImgURL = nullableToPointer(imgURL)
+		post.ParentPostID = nullableToPointer(parentPostID)
 		if editedAt.Valid {
 			post.EditedAt = &editedAt.Time
 		}
