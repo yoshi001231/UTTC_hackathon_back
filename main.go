@@ -70,6 +70,7 @@ func main() {
 	// タイムライン関連エンドポイント
 	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
 	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET")
+	router.HandleFunc("/timeline/liked_by/{user_id}", timelineController.HandleGetLikedPosts).Methods("GET")
 
 	// OPTIONSリクエストに対応
 	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
