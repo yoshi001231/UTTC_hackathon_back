@@ -51,21 +51,9 @@ func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
 		}
 
 		// NullString をポインタ型に変換
-		if bio.Valid {
-			user.Bio = &bio.String
-		} else {
-			user.Bio = nil
-		}
-		if profileImgURL.Valid {
-			user.ProfileImgURL = &profileImgURL.String
-		} else {
-			user.ProfileImgURL = nil
-		}
-		if headerImgURL.Valid {
-			user.HeaderImgURL = &headerImgURL.String
-		} else {
-			user.HeaderImgURL = nil
-		}
+		user.Bio = nullableToPointer(bio)
+		user.ProfileImgURL = nullableToPointer(profileImgURL)
+		user.HeaderImgURL = nullableToPointer(headerImgURL)
 
 		users = append(users, user)
 	}
@@ -92,21 +80,9 @@ func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
 		}
 
 		// NullString をポインタ型に変換
-		if bio.Valid {
-			user.Bio = &bio.String
-		} else {
-			user.Bio = nil
-		}
-		if profileImgURL.Valid {
-			user.ProfileImgURL = &profileImgURL.String
-		} else {
-			user.ProfileImgURL = nil
-		}
-		if headerImgURL.Valid {
-			user.HeaderImgURL = &headerImgURL.String
-		} else {
-			user.HeaderImgURL = nil
-		}
+		user.Bio = nullableToPointer(bio)
+		user.ProfileImgURL = nullableToPointer(profileImgURL)
+		user.HeaderImgURL = nullableToPointer(headerImgURL)
 
 		users = append(users, user)
 	}
