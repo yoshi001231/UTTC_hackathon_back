@@ -39,3 +39,8 @@ func (uc *FollowUseCase) GetFollowers(userID string) ([]model.User, error) {
 func (uc *FollowUseCase) GetFollowing(userID string) ([]model.User, error) {
 	return uc.FollowDAO.GetFollowing(userID)
 }
+
+// GetFollowGraph フォローグラフを取得
+func (uc *FollowUseCase) GetFollowGraph() ([]model.Follow, error) {
+	return uc.FollowDAO.GetFollowGraph()
+}

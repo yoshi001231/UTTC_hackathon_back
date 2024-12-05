@@ -69,6 +69,8 @@ func main() {
 	router.HandleFunc("/follow/{user_id}/remove", followController.HandleRemoveFollow).Methods("DELETE")
 	router.HandleFunc("/follow/{user_id}/followers", followController.HandleGetFollowers).Methods("GET")
 	router.HandleFunc("/follow/{user_id}/following", followController.HandleGetFollowing).Methods("GET")
+	// +フォロー関係取得エンドポイント
+	router.HandleFunc("/follow/graph", followController.HandleGetFollowGraph).Methods("GET")
 
 	// タイムライン関連エンドポイント
 	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
