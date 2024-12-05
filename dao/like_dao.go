@@ -54,16 +54,8 @@ func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
 		}
 
 		// NullString をポインタ型に変換
-		if bio.Valid {
-			user.Bio = &bio.String
-		} else {
-			user.Bio = nil
-		}
-		if profileImgURL.Valid {
-			user.ProfileImgURL = &profileImgURL.String
-		} else {
-			user.ProfileImgURL = nil
-		}
+		user.Bio = nullableToPointer(bio)
+		user.ProfileImgURL = nullableToPointer(profileImgURL)
 
 		users = append(users, user)
 	}

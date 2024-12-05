@@ -22,6 +22,7 @@ func main() {
 	postDAO := dao.GetPostDAO()
 	timelineDAO := dao.GetTimelineDAO()
 	userDAO := dao.GetUserDAO()
+	findDAO := dao.GetFindDAO()
 	// UseCase初期化
 	authUseCase := usecase.NewAuthUseCase(authDAO)
 	followUseCase := usecase.NewFollowUseCase(followDAO)
@@ -29,6 +30,7 @@ func main() {
 	postUseCase := usecase.NewPostUseCase(postDAO)
 	timelineUseCase := usecase.NewTimelineUseCase(timelineDAO)
 	userUseCase := usecase.NewUserUseCase(userDAO)
+	findUseCase := usecase.NewFindUseCase(findDAO)
 	// Controller初期化
 	authController := controller.NewAuthController(authUseCase)
 	followController := controller.NewFollowController(followUseCase)
@@ -36,6 +38,7 @@ func main() {
 	postController := controller.NewPostController(postUseCase)
 	timelineController := controller.NewTimelineController(timelineUseCase)
 	userController := controller.NewUserController(userUseCase)
+	findController := controller.NewFindController(findUseCase)
 
 	// ルーター初期化
 	router := mux.NewRouter()
@@ -71,6 +74,10 @@ func main() {
 	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
 	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET")
 	router.HandleFunc("/timeline/liked_by/{user_id}", timelineController.HandleGetLikedPosts).Methods("GET")
+
+	// 検索関連エンドポイント
+	router.HandleFunc("find/user/{key}", findController.HandleFindUsers).Methods("GET")
+	router.HandleFunc("/find/post/{key}", findController.HandleFindPosts).Methods("GET")
 
 	// OPTIONSリクエストに対応
 	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
