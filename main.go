@@ -76,7 +76,7 @@ func main() {
 	router.HandleFunc("/timeline/liked_by/{user_id}", timelineController.HandleGetLikedPosts).Methods("GET")
 
 	// 検索関連エンドポイント
-	router.HandleFunc("find/user/{key}", findController.HandleFindUsers).Methods("GET")
+	router.HandleFunc("/find/user/{key}", findController.HandleFindUsers).Methods("GET")
 	router.HandleFunc("/find/post/{key}", findController.HandleFindPosts).Methods("GET")
 
 	// OPTIONSリクエストに対応
