@@ -32,7 +32,7 @@ func (dao *FollowDAO) RemoveFollow(userID, followingUserID string) error {
 }
 
 func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
-	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url FROM users u INNER JOIN followers f ON u.user_id = f.user_id WHERE f.following_user_id = ?`, userID)
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, u.header_img_url FROM users u INNER JOIN followers f ON u.user_id = f.user_id WHERE f.following_user_id = ?`, userID)
 	if err != nil {
 		log.Printf("[follow_dao.go] 以下のフォロワー一覧取得失敗 (user_id: %s): %v", userID, err)
 		return nil, err
@@ -42,10 +42,10 @@ func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
 	var users []model.User
 	for rows.Next() {
 		var user model.User
-		var bio, profileImgURL sql.NullString
+		var bio, profileImgURL, headerImgURL sql.NullString
 
 		// Scan 時に NullString を使用
-		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL, &headerImgURL); err != nil {
 			log.Printf("[follow_dao.go] ユーザーデータのScan失敗: %v", err)
 			return nil, err
 		}
@@ -61,6 +61,11 @@ func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
 		} else {
 			user.ProfileImgURL = nil
 		}
+		if headerImgURL.Valid {
+			user.HeaderImgURL = &headerImgURL.String
+		} else {
+			user.HeaderImgURL = nil
+		}
 
 		users = append(users, user)
 	}
@@ -68,7 +73,7 @@ func (dao *FollowDAO) GetFollowers(userID string) ([]model.User, error) {
 }
 
 func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
-	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url FROM users u INNER JOIN followers f ON u.user_id = f.following_user_id WHERE f.user_id = ?`, userID)
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, u.header_img_url FROM users u INNER JOIN followers f ON u.user_id = f.following_user_id WHERE f.user_id = ?`, userID)
 	if err != nil {
 		log.Printf("[follow_dao.go] 以下のフォロー中一覧取得失敗 (user_id: %s): %v", userID, err)
 		return nil, err
@@ -78,10 +83,10 @@ func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
 	var users []model.User
 	for rows.Next() {
 		var user model.User
-		var bio, profileImgURL sql.NullString
+		var bio, profileImgURL, headerImgURL sql.NullString
 
 		// Scan 時に NullString を使用
-		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL); err != nil {
+		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL, &headerImgURL); err != nil {
 			log.Printf("[follow_dao.go] ユーザーデータのScan失敗: %v", err)
 			return nil, err
 		}
@@ -96,6 +101,11 @@ func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
 			user.ProfileImgURL = &profileImgURL.String
 		} else {
 			user.ProfileImgURL = nil
+		}
+		if headerImgURL.Valid {
+			user.HeaderImgURL = &headerImgURL.String
+		} else {
+			user.HeaderImgURL = nil
 		}
 
 		users = append(users, user)
