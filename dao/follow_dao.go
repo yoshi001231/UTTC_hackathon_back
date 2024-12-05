@@ -88,3 +88,25 @@ func (dao *FollowDAO) GetFollowing(userID string) ([]model.User, error) {
 	}
 	return users, nil
 }
+
+// GetFollowGraph フォローグラフを取得
+func (dao *FollowDAO) GetFollowGraph() ([]model.Follow, error) {
+	rows, err := dao.db.Query("SELECT user_id, following_user_id FROM followers")
+	if err != nil {
+		log.Printf("[follow_dao.go] フォローグラフの取得失敗: %v", err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var follows []model.Follow
+	for rows.Next() {
+		var follow model.Follow
+		if err := rows.Scan(&follow.UserID, &follow.FollowingUserID); err != nil {
+			log.Printf("[follow_dao.go] フォローグラフデータのScan失敗: %v", err)
+			return nil, err
+		}
+		follows = append(follows, follow)
+	}
+
+	return follows, nil
+}

@@ -105,3 +105,23 @@ func (c *FollowController) HandleGetFollowing(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(resp)
 }
+
+// HandleGetFollowGraph フォローグラフを取得
+func (c *FollowController) HandleGetFollowGraph(w http.ResponseWriter, r *http.Request) {
+	follows, err := c.followUseCase.GetFollowGraph()
+	if err != nil {
+		log.Printf("[follow_controller.go] フォローグラフの取得失敗: %v", err)
+		http.Error(w, "フォローグラフの取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := json.Marshal(follows)
+	if err != nil {
+		log.Printf("[follow_controller.go] JSONエンコード失敗: %v", err)
+		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
+}
