@@ -23,7 +23,7 @@ func (uc *GeminiUseCase) GenerateBio(authID, instruction string) (*genai.Part, e
 	}
 
 	prompt := "以下のツイート内容を基に、Twitterの自己紹介文を日本語で150字以内で生成してください。"
-	if instruction != "none" {
+	if instruction != "" {
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
 	}
 	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")

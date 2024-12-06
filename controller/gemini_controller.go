@@ -9,6 +9,11 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// InstructionRequest リクエストボディの構造体
+type InstructionRequest struct {
+	Instruction *string `json:"instruction"`
+}
+
 // GeminiController Gemini関連エンドポイントのコントローラ
 type GeminiController struct {
 	geminiUseCase *usecase.GeminiUseCase
@@ -23,7 +28,20 @@ func NewGeminiController(useCase *usecase.GeminiUseCase) *GeminiController {
 func (c *GeminiController) HandleGenerateBio(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
 	authID := vars["auth_id"]
-	instruction := vars["instruction"]
+
+	// JSONリクエストのパース
+	var req InstructionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("[gemini_controller.go] リクエストデコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "リクエスト形式が不正です", http.StatusBadRequest)
+		return
+	}
+
+	// `instruction` が null の場合は空文字列を代入
+	instruction := ""
+	if req.Instruction != nil {
+		instruction = *req.Instruction
+	}
 
 	part, err := c.geminiUseCase.GenerateBio(authID, instruction)
 	if err != nil {
@@ -34,6 +52,7 @@ func (c *GeminiController) HandleGenerateBio(w http.ResponseWriter, r *http.Requ
 
 	w.Header().Set("Content-Type", "application/json")
 	if err := json.NewEncoder(w).Encode(part); err != nil {
-		log.Printf("[gemini_controller.go] jsonエンコード失敗 (auth_id: %s, instruction): %v", authID, instruction, err)
+		log.Printf("[gemini_controller.go] jsonエンコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
 	}
 }
