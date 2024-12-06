@@ -35,7 +35,7 @@ func (dao *LikeDAO) RemoveLike(userID, postID string) error {
 
 // GetUsersByPostID 投稿にいいねしたユーザー一覧を取得
 func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
-	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, u.heaser_img_url FROM users u INNER JOIN likes l ON u.user_id = l.user_id WHERE l.post_id = ?`, postID)
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, u.header_img_url FROM users u INNER JOIN likes l ON u.user_id = l.user_id WHERE l.post_id = ?`, postID)
 	if err != nil {
 		log.Printf("[like_dao.go] 以下のいいねユーザー一覧取得失敗 (post_id: %s): %v", postID, err)
 		return nil, err
