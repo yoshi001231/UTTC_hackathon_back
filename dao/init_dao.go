@@ -20,6 +20,7 @@ var (
 	timelineDAOInstance *TimelineDAO
 	userDAOInstance     *UserDAO
 	findDAOInstance     *FindDAO
+	geminiDAOInstance   *GeminiDAO
 )
 
 func InitDB() *sql.DB {
@@ -112,6 +113,13 @@ func GetFindDAO() *FindDAO {
 		findDAOInstance = NewFindDAO(InitDB())
 	}
 	return findDAOInstance
+}
+
+func GetGeminiDAO() *GeminiDAO {
+	if geminiDAOInstance == nil {
+		geminiDAOInstance = NewGeminiDAO(InitDB())
+	}
+	return geminiDAOInstance
 }
 
 // ヘルパー関数: sql.NullString をポインタ型に変換

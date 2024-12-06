@@ -23,6 +23,7 @@ func main() {
 	timelineDAO := dao.GetTimelineDAO()
 	userDAO := dao.GetUserDAO()
 	findDAO := dao.GetFindDAO()
+	geminiDAO := dao.GetGeminiDAO()
 	// UseCase初期化
 	authUseCase := usecase.NewAuthUseCase(authDAO)
 	followUseCase := usecase.NewFollowUseCase(followDAO)
@@ -31,6 +32,7 @@ func main() {
 	timelineUseCase := usecase.NewTimelineUseCase(timelineDAO)
 	userUseCase := usecase.NewUserUseCase(userDAO)
 	findUseCase := usecase.NewFindUseCase(findDAO)
+	geminiUseCase := usecase.NewGeminiUseCase(geminiDAO)
 	// Controller初期化
 	authController := controller.NewAuthController(authUseCase)
 	followController := controller.NewFollowController(followUseCase)
@@ -39,6 +41,7 @@ func main() {
 	timelineController := controller.NewTimelineController(timelineUseCase)
 	userController := controller.NewUserController(userUseCase)
 	findController := controller.NewFindController(findUseCase)
+	geminiController := controller.NewGeminiController(geminiUseCase)
 
 	// ルーター初期化
 	router := mux.NewRouter()
@@ -80,6 +83,9 @@ func main() {
 	// 検索関連エンドポイント
 	router.HandleFunc("/find/user/{key}", findController.HandleFindUsers).Methods("GET")
 	router.HandleFunc("/find/post/{key}", findController.HandleFindPosts).Methods("GET")
+
+	// Geimini関連エンドポイント
+	router.HandleFunc("/gemini/generate_bio/{auth_id}/{instruction}", geminiController.HandleGenerateBio).Methods("GET")
 
 	// OPTIONSリクエストに対応
 	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
