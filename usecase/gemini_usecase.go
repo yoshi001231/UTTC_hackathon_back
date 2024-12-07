@@ -3,7 +3,6 @@ package usecase
 import (
 	"cloud.google.com/go/vertexai/genai"
 	"fmt"
-	"log"
 	"strings"
 	"twitter/dao"
 )
@@ -81,10 +80,8 @@ func (uc *GeminiUseCase) CheckIfPostIsBad(postID string) (*genai.Part, error) {
 	// プロンプトを作成
 	prompt := fmt.Sprintf("次の投稿が良識に反している場合は 'YES' を、そうでない場合は 'NO' を返してください:\n\n投稿内容: %s", content)
 
-	resp, err := uc.geminiDAO.GenerateResponseFromPrompt(prompt)
-	log.Printf(prompt, content, resp)
 	// Gemini API を使用して判定
-	return resp, err
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
 }
 
 // UpdateIsBad 指定した投稿の is_bad カラムを更新
