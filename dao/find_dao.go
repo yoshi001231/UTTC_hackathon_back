@@ -57,7 +57,7 @@ func (dao *FindDAO) FindUsersByKey(key string) ([]model.User, error) {
 // FindPostsByKey 指定したキーワードを content に含む投稿を検索
 func (dao *FindDAO) FindPostsByKey(key string) ([]model.Post, error) {
 	rows, err := dao.db.Query(`
-		SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id
+		SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, is_bad
 		FROM posts
 		WHERE content LIKE ? AND deleted_at IS NULL`,
 		"%"+key+"%",
@@ -82,6 +82,7 @@ func (dao *FindDAO) FindPostsByKey(key string) ([]model.Post, error) {
 			&post.CreatedAt,
 			&editedAt,
 			&parentPostID,
+			&post.IsBad,
 		); err != nil {
 			log.Printf("[find_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err

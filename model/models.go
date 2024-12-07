@@ -25,6 +25,7 @@ type Post struct {
 	EditedAt     *time.Time `json:"edited_at,omitempty"`
 	DeletedAt    *time.Time `json:"deleted_at,omitempty"`
 	ParentPostID *string    `json:"parent_post_id,omitempty"`
+	IsBad        bool       `json:"is_bad"`
 }
 
 // Like モデル
