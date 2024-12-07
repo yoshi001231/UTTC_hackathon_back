@@ -56,3 +56,36 @@ func (c *GeminiController) HandleGenerateBio(w http.ResponseWriter, r *http.Requ
 		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
 	}
 }
+
+// HandleGenerateName 名前生成エンドポイントのハンドラ
+func (c *GeminiController) HandleGenerateName(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	authID := vars["auth_id"]
+
+	// JSONリクエストのパース
+	var req InstructionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("[gemini_controller.go] リクエストデコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "リクエスト形式が不正です", http.StatusBadRequest)
+		return
+	}
+
+	// `instruction` が null の場合は空文字列を代入
+	instruction := ""
+	if req.Instruction != nil {
+		instruction = *req.Instruction
+	}
+
+	part, err := c.geminiUseCase.GenerateName(authID, instruction)
+	if err != nil {
+		log.Printf("[gemini_controller.go] 名前生成失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "名前の生成に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(part); err != nil {
+		log.Printf("[gemini_controller.go] jsonエンコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
+	}
+}

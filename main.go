@@ -85,6 +85,7 @@ func main() {
 	router.HandleFunc("/find/post/{key}", findController.HandleFindPosts).Methods("GET")
 
 	// Geimini関連エンドポイント
+	router.HandleFunc("/gemini/generate_name/{auth_id}", geminiController.HandleGenerateName).Methods("POST")
 	router.HandleFunc("/gemini/generate_bio/{auth_id}", geminiController.HandleGenerateBio).Methods("POST")
 
 	// OPTIONSリクエストに対応
