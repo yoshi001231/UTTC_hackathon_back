@@ -90,6 +90,7 @@ func main() {
 	router.HandleFunc("/gemini/generate_tweet_continuation/{auth_id}", geminiController.HandleGenerateTweetContinuation).Methods("POST")
 	router.HandleFunc("/gemini/check_isbad/{post_id}", geminiController.HandleCheckIsBad).Methods("GET")
 	router.HandleFunc("/gemini/update_isbad/{post_id}/{bool}", geminiController.HandleUpdateIsBad).Methods("PUT")
+	router.HandleFunc("/gemini/recommend/{auth_id}", geminiController.HandleRecommendUsers).Methods("POST")
 
 	// OPTIONSリクエストに対応
 	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

@@ -6,6 +6,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log"
+	"twitter/model"
 )
 
 const (
@@ -105,4 +106,41 @@ func (dao *GeminiDAO) UpdateIsBad(postID string, isBad bool) error {
 	}
 
 	return nil
+}
+
+// FetchUnfollowedUsers 指定ユーザーがフォローしていないユーザーのID、名前、自己紹介を取得
+func (dao *GeminiDAO) FetchUnfollowedUsers(authID string) ([]model.User, error) {
+	rows, err := dao.db.Query(`
+		SELECT u.user_id, u.name, u.bio
+		FROM users u
+		WHERE u.user_id NOT IN (
+			SELECT f.following_user_id
+			FROM follows f
+			WHERE f.user_id = ?
+		) AND u.user_id != ?
+		ORDER BY u.created_at DESC
+	`, authID, authID)
+
+	if err != nil {
+		log.Printf("[gemini_dao.go] 未フォローのユーザー取得失敗 (auth_id: %s): %v", authID, err)
+		return nil, err
+	}
+	defer rows.Close()
+
+	var users []model.User
+	for rows.Next() {
+		var user model.User
+		var bio sql.NullString
+
+		if err := rows.Scan(&user.UserID, &user.Name, &bio); err != nil {
+			log.Printf("[gemini_dao.go] ユーザーデータのScan失敗: %v", err)
+			return nil, err
+		}
+
+		// NULL値を処理
+		user.Bio = nullableToPointer(bio)
+
+		users = append(users, user)
+	}
+	return users, nil
 }

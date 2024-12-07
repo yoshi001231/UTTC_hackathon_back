@@ -81,13 +81,58 @@ func (uc *GeminiUseCase) CheckIfPostIsBad(postID string) (*genai.Part, error) {
 	// プロンプトを作成
 	prompt := fmt.Sprintf("次の投稿が良識に反している場合は 'YES' を、そうでない場合は 'NO' を返してください:\n\n投稿内容: %s", content)
 
-	resp, err := uc.geminiDAO.GenerateResponseFromPrompt(prompt)
-	log.Printf(prompt, content, resp)
 	// Gemini API を使用して判定
-	return resp, err
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
 }
 
 // UpdateIsBad 指定した投稿の is_bad カラムを更新
 func (uc *GeminiUseCase) UpdateIsBad(postID string, isBad bool) error {
 	return uc.geminiDAO.UpdateIsBad(postID, isBad)
+}
+
+// RecommendUsers 過去ツイートと指示からおすすめユーザーを生成
+func (uc *GeminiUseCase) RecommendUsers(authID, instruction string) (*genai.Part, error) {
+	// 過去ツイートを取得
+	tweets, err := uc.geminiDAO.FetchUserPostContents(authID)
+	if err != nil {
+		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
+	}
+
+	// 未フォローのユーザー情報を取得
+	unfollowedUsers, err := uc.geminiDAO.FetchUnfollowedUsers(authID)
+	if err != nil {
+		return nil, fmt.Errorf("未フォローのユーザー取得失敗: %w", err)
+	}
+
+	// 未フォローのユーザーをプロンプトに追加
+	userInfo := ""
+	for _, user := range unfollowedUsers {
+		userInfo += fmt.Sprintf("- ID: %s, 名前: %s, 自己紹介: %s\n", user.UserID, user.Name, nullableToString(user.Bio))
+	}
+
+	// プロンプト作成
+	prompt := "以下のツイート内容と未フォローのユーザー情報をもとに、フォローすべきおすすめのユーザーIDをカンマ区切りで生成してください。\n"
+	prompt += "ツイート内容:\n" + strings.Join(tweets, "\n") + "\n"
+	prompt += "未フォローのユーザー情報:\n" + userInfo
+	if instruction != "" {
+		prompt += fmt.Sprintf(" 指示: %s", instruction)
+	}
+
+	log.Printf("prompt", prompt, instruction)
+
+	// Gemini APIで生成
+	responsePart, err := uc.geminiDAO.GenerateResponseFromPrompt(prompt)
+	if err != nil {
+		return nil, fmt.Errorf("Geminiによる推薦生成失敗: %w", err)
+	}
+
+	return responsePart, nil
+}
+
+// nullableToString ヘルパー関数: *string を文字列に変換
+func nullableToString(s *string) string {
+	if s != nil {
+		return *s
+	}
+	return "N/A"
 }

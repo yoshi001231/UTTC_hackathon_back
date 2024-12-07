@@ -179,3 +179,36 @@ func (c *GeminiController) HandleUpdateIsBad(w http.ResponseWriter, r *http.Requ
 	// 成功レスポンス
 	w.WriteHeader(http.StatusNoContent)
 }
+
+// HandleRecommendUsers おすすめユーザーを生成
+func (c *GeminiController) HandleRecommendUsers(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	authID := vars["auth_id"]
+
+	// JSONリクエストのパース
+	var req InstructionRequest
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		log.Printf("[gemini_controller.go] リクエストデコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "リクエスト形式が不正です", http.StatusBadRequest)
+		return
+	}
+
+	// `instruction` が null の場合は空文字列を代入
+	instruction := ""
+	if req.Instruction != nil {
+		instruction = *req.Instruction
+	}
+
+	part, err := c.geminiUseCase.RecommendUsers(authID, instruction)
+	if err != nil {
+		log.Printf("[gemini_controller.go] ユーザー推薦失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "ユーザー推薦に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(part); err != nil {
+		log.Printf("[gemini_controller.go] jsonエンコード失敗 (auth_id: %s): %v", authID, err)
+		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
+	}
+}
