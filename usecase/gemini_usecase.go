@@ -22,7 +22,7 @@ func (uc *GeminiUseCase) GenerateBio(authID, instruction string) (*genai.Part, e
 		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
 	}
 
-	prompt := "以下のツイート内容と指示をもとに、Twitterの自己紹介文を日本語で150字以内で生成してください。'#'はつけないでください"
+	prompt := "以下のツイート内容と指示をもとに、Twitterの自己紹介文を日本語で150字以内で生成してください。'#'はつけないでください。"
 	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
@@ -55,7 +55,7 @@ func (uc *GeminiUseCase) GenerateTweetContinuation(authID, instruction, tempText
 	}
 
 	// プロンプト作成
-	prompt := "以下のツイート内容を基に、Twitterの新しいツイートを合計200字以内で生成してください。"
+	prompt := "以下のツイート内容を基に、Twitterの新しいツイートを合計200字以内で生成してください。'#'はつけないでください。"
 	prompt += "\n過去のツイート内容:\n" + strings.Join(tweets, "\n")
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
