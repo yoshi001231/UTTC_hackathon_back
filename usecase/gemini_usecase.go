@@ -78,7 +78,7 @@ func (uc *GeminiUseCase) CheckIfPostIsBad(postID string) (*genai.Part, error) {
 	}
 
 	// プロンプトを作成
-	prompt := fmt.Sprintf("次の投稿が公序良俗に反している場合は 'YES' を、そうでない場合は 'NO' を返してください:\n\n投稿内容: %s", content)
+	prompt := fmt.Sprintf("次の投稿が良識に反している場合は 'YES' を、そうでない場合は 'NO' を返してください:\n\n投稿内容: %s", content)
 
 	// Gemini API を使用して判定
 	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
