@@ -38,7 +38,7 @@ func (uc *GeminiUseCase) GenerateName(authID, instruction string) (*genai.Part, 
 		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
 	}
 
-	prompt := "以下のツイート内容を基に、Twitterの名前を日本語で15字以内で生成してください。"
+	prompt := "以下のツイート内容を基に、Twitterの名前を日本語で15字以内で1つだけ生成してください。"
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
 	}
