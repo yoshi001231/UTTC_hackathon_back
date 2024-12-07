@@ -113,11 +113,11 @@ func (uc *GeminiUseCase) RecommendUsers(authID, instruction string) (*genai.Part
 	// プロンプト作成
 	prompt := "以下のツイート内容と未フォローのユーザー情報をもとに、フォローすべきおすすめのユーザーを推薦してください。\n"
 	prompt += "ツイート内容:\n" + strings.Join(tweets, "\n") + "\n"
+	prompt += "必ず上記IDのいずれかから選択するようにして、お薦め順に最大3つまでカンマ区切りで生成してください。\n"
 	prompt += "未フォローのユーザー情報:\n" + userInfo
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 追加の指示: %s", instruction)
 	}
-	prompt += "必ず上記IDのいずれかから選択するようにして、お薦め順に最大3つまでカンマ区切りで生成してください。\n"
 
 	log.Printf("prompt", prompt, instruction)
 
