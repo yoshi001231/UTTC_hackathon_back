@@ -56,6 +56,7 @@ func (uc *GeminiUseCase) GenerateTweetContinuation(authID, instruction, tempText
 
 	// プロンプト作成
 	prompt := "以下のツイート内容を基に、Twitterの新しいツイートを合計200字以内で生成してください。'#'はつけないでください。"
+	prompt += "過去のツイートがタメ口中心ならタメ口中心、敬語中心なら敬語中心にしてください。"
 	prompt += "\n過去のツイート内容:\n" + strings.Join(tweets, "\n")
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
