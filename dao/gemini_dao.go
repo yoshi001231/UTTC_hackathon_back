@@ -118,7 +118,6 @@ func (dao *GeminiDAO) FetchUnfollowedUsers(authID string) ([]model.User, error) 
 			FROM followers f
 			WHERE f.user_id = ?
 		) AND u.user_id != ?
-		ORDER BY u.created_at DESC
 	`, authID, authID)
 
 	if err != nil {
