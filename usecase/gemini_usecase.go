@@ -3,7 +3,6 @@ package usecase
 import (
 	"cloud.google.com/go/vertexai/genai"
 	"fmt"
-	"log"
 	"strings"
 	"twitter/dao"
 )
@@ -110,9 +109,7 @@ func (uc *GeminiUseCase) RecommendUsers(authID, instruction string) (*genai.Part
 	if instruction != "" {
 		prompt += fmt.Sprintf(" 追加の指示: %s\n", instruction)
 	}
-	prompt += "必ず上記IDのいずれかから選択するようにしてください。\n"
-
-	log.Printf("prompt", prompt, instruction)
+	prompt += "必ず上記IDのいずれかから選択するようにして、結論となるIDのみを答えてください。\n"
 
 	// Gemini APIで生成
 	responsePart, err := uc.geminiDAO.GenerateResponseFromPrompt(prompt)
