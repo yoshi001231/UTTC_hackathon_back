@@ -23,10 +23,10 @@ func (uc *GeminiUseCase) GenerateBio(authID, instruction string) (*genai.Part, e
 		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
 	}
 
-	prompt := "以下のツイート内容と指示をもとに、Twitterの自己紹介文を日本語で150字以内で生成してください。'#'はつけないでください。"
+	prompt := "以下のツイート内容をもとに、Twitterの自己紹介文を日本語で150字以内で生成してください。'#'はつけないでください。"
 	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")
 	if instruction != "" {
-		prompt += fmt.Sprintf(" 指示: %s", instruction)
+		prompt += fmt.Sprintf(" 追加の指示: %s", instruction)
 	}
 
 	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
@@ -39,10 +39,10 @@ func (uc *GeminiUseCase) GenerateName(authID, instruction string) (*genai.Part, 
 		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
 	}
 
-	prompt := "以下のツイート内容と指示をもとに、Twitterの名前を日本語で15字以内で1つだけ生成してください。"
+	prompt := "以下のツイート内容をもとに、Twitterの名前を日本語で15字以内で1つだけ生成してください。"
 	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")
 	if instruction != "" {
-		prompt += fmt.Sprintf(" 指示: %s", instruction)
+		prompt += fmt.Sprintf(" 追加の指示: %s", instruction)
 	}
 
 	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
@@ -57,10 +57,10 @@ func (uc *GeminiUseCase) GenerateTweetContinuation(authID, instruction, tempText
 
 	// プロンプト作成
 	prompt := "以下のツイート内容を基に、Twitterの新しいツイートを合計200字以内で生成してください。'#'はつけないでください。"
-	prompt += "過去のツイートがタメ口中心ならタメ口中心、敬語中心なら敬語中心にしてください。"
 	prompt += "\n過去のツイート内容:\n" + strings.Join(tweets, "\n")
+	prompt += "過去のツイートがタメ口中心ならタメ口中心、敬語中心なら敬語中心にしてください。"
 	if instruction != "" {
-		prompt += fmt.Sprintf(" 指示: %s", instruction)
+		prompt += fmt.Sprintf(" 追加の指示: %s", instruction)
 	}
 	if tempText != "" {
 		prompt += " 現在のツイートの続きを生成してください:"
@@ -115,7 +115,7 @@ func (uc *GeminiUseCase) RecommendUsers(authID, instruction string) (*genai.Part
 	prompt += "ツイート内容:\n" + strings.Join(tweets, "\n") + "\n"
 	prompt += "未フォローのユーザー情報:\n" + userInfo
 	if instruction != "" {
-		prompt += fmt.Sprintf(" 指示: %s", instruction)
+		prompt += fmt.Sprintf(" 追加の指示: %s", instruction)
 	}
 	prompt += "必ず上記IDのいずれかから選択するようにして、お薦め順に最大3つまでカンマ区切りで生成してください。\n"
 
