@@ -19,13 +19,14 @@ func NewPostDAO(db *sql.DB) *PostDAO {
 // CreatePost 新しい投稿を作成
 func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
 	_, err := dao.db.Exec(
-		"INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id, is_bad) VALUES (?, ?, ?, ?, ?, ?)",
 		post.PostID,
 		post.UserID,
 		post.Content,
 		sqlNullString(post.ImgURL),
 		post.CreatedAt,
 		sqlNullString(post.ParentPostID),
+		false, // デフォルトでfalse
 	)
 	if err != nil {
 		log.Printf("[post_dao.go] 以下の投稿作成失敗 (post_id: %s, user_id: %s, content: %s): %v", post.PostID, post.UserID, post.Content, err)
@@ -41,7 +42,7 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 	var deletedAt, editedAt sql.NullTime
 
 	err := dao.db.QueryRow(
-		"SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at FROM posts WHERE post_id = ?",
+		"SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, deleted_at, is_bad FROM posts WHERE post_id = ?",
 		postID,
 	).Scan(
 		&post.PostID,
@@ -52,6 +53,7 @@ func (dao *PostDAO) GetPost(postID string) (*model.Post, error) {
 		&editedAt,
 		&parentPostID,
 		&deletedAt,
+		&post.IsBad,
 	)
 	if err == sql.ErrNoRows {
 		log.Printf("[post_dao.go] 以下の投稿が見つからない (post_id: %s)", postID)
@@ -104,7 +106,7 @@ func (dao *PostDAO) DeletePost(postID string) error {
 // GetChildrenPosts 子ポストを取得
 func (dao *PostDAO) GetChildrenPosts(parentPostID string) ([]model.Post, error) {
 	rows, err := dao.db.Query(
-		"SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id FROM posts WHERE parent_post_id = ? AND deleted_at IS NULL",
+		"SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, is_bad FROM posts WHERE parent_post_id = ? AND deleted_at IS NULL",
 		parentPostID,
 	)
 	if err != nil {
@@ -127,6 +129,7 @@ func (dao *PostDAO) GetChildrenPosts(parentPostID string) ([]model.Post, error) 
 			&post.CreatedAt,
 			&editedAt,
 			&parentPostID,
+			&post.IsBad,
 		); err != nil {
 			log.Printf("[post_dao.go] 子ポストデータのScan失敗: %v", err)
 			return nil, err

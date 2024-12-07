@@ -28,7 +28,7 @@ func (uc *GeminiUseCase) GenerateBio(authID, instruction string) (*genai.Part, e
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
 	}
 
-	return uc.geminiDAO.GenerateContentWithPastPosts(prompt)
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
 }
 
 // GenerateName 過去ツイートと指示から名前を生成
@@ -44,7 +44,7 @@ func (uc *GeminiUseCase) GenerateName(authID, instruction string) (*genai.Part, 
 		prompt += fmt.Sprintf(" 指示: %s", instruction)
 	}
 
-	return uc.geminiDAO.GenerateContentWithPastPosts(prompt)
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
 }
 
 // GenerateTweetContinuation 過去ツイート、指示、現在の入力からツイートの続きを生成
@@ -66,5 +66,25 @@ func (uc *GeminiUseCase) GenerateTweetContinuation(authID, instruction, tempText
 		prompt += fmt.Sprintf("\n現在のツイート: %s", tempText)
 	}
 
-	return uc.geminiDAO.GenerateContentWithPastPosts(prompt)
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
+}
+
+// CheckIfPostIsBad 指定した投稿の内容を検査して Gemini の結果を返す
+func (uc *GeminiUseCase) CheckIfPostIsBad(postID string) (*genai.Part, error) {
+	// DAO から投稿内容を取得
+	content, err := uc.geminiDAO.GetPostContent(postID)
+	if err != nil {
+		return nil, fmt.Errorf("投稿内容の取得失敗: %w", err)
+	}
+
+	// プロンプトを作成
+	prompt := fmt.Sprintf("次の投稿が良識に反している場合は 'YES' を、そうでない場合は 'NO' を返してください:\n\n投稿内容: %s", content)
+
+	// Gemini API を使用して判定
+	return uc.geminiDAO.GenerateResponseFromPrompt(prompt)
+}
+
+// UpdateIsBad 指定した投稿の is_bad カラムを更新
+func (uc *GeminiUseCase) UpdateIsBad(postID string, isBad bool) error {
+	return uc.geminiDAO.UpdateIsBad(postID, isBad)
 }

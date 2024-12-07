@@ -130,3 +130,52 @@ func (c *GeminiController) HandleGenerateTweetContinuation(w http.ResponseWriter
 		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
 	}
 }
+
+// HandleCheckIsBad 指定したツイートの内容を検査して "YES" または "NO" を返す
+func (c *GeminiController) HandleCheckIsBad(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postID := vars["post_id"]
+
+	part, err := c.geminiUseCase.CheckIfPostIsBad(postID)
+	if err != nil {
+		log.Printf("[gemini_controller.go] 投稿検査失敗 (post_id: %s): %v", postID, err)
+		http.Error(w, "投稿検査に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	// 結果を返却
+	w.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(w).Encode(part); err != nil {
+		log.Printf("[gemini_controller.go] JSONエンコード失敗 (post_id: %s): %v", postID, err)
+		http.Error(w, "レスポンスの生成に失敗しました", http.StatusInternalServerError)
+	}
+}
+
+// HandleUpdateIsBad 指定したツイートの is_bad カラムを更新
+func (c *GeminiController) HandleUpdateIsBad(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	postID := vars["post_id"]
+	boolValue := vars["bool"]
+
+	// bool 値の変換
+	var isBad bool
+	if boolValue == "1" {
+		isBad = true
+	} else if boolValue == "0" {
+		isBad = false
+	} else {
+		log.Printf("[gemini_controller.go] 不正な bool 値 (post_id: %s, bool: %s)", postID, boolValue)
+		http.Error(w, "bool 値が不正です。0 または 1 を指定してください", http.StatusBadRequest)
+		return
+	}
+
+	// UseCase を呼び出し
+	if err := c.geminiUseCase.UpdateIsBad(postID, isBad); err != nil {
+		log.Printf("[gemini_controller.go] is_bad 更新失敗 (post_id: %s, is_bad: %v): %v", postID, isBad, err)
+		http.Error(w, "is_bad の更新に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	// 成功レスポンス
+	w.WriteHeader(http.StatusNoContent)
+}

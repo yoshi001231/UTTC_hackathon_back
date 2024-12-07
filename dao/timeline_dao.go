@@ -17,7 +17,7 @@ func NewTimelineDAO(db *sql.DB) *TimelineDAO {
 // FetchUserTimeline ログインユーザーのタイムラインを取得
 func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
 	rows, err := dao.db.Query(`
-		SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id 
+		SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id, p.is_bad 
 		FROM posts p 
 		WHERE p.deleted_at IS NULL 
 		AND (p.user_id = ? OR EXISTS (
@@ -44,6 +44,7 @@ func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
 			&post.CreatedAt,
 			&editedAt,
 			&parentPostID,
+			&post.IsBad,
 		); err != nil {
 			log.Printf("[timeline_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err
@@ -64,7 +65,7 @@ func (dao *TimelineDAO) FetchUserTimeline(userID string) ([]model.Post, error) {
 // FetchUserPosts 指定ユーザーの投稿一覧を取得
 func (dao *TimelineDAO) FetchUserPosts(userID string) ([]model.Post, error) {
 	rows, err := dao.db.Query(`
-		SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id 
+		SELECT post_id, user_id, content, img_url, created_at, edited_at, parent_post_id, is_bad 
 		FROM posts 
 		WHERE user_id = ? AND deleted_at IS NULL 
 		ORDER BY created_at DESC`, userID)
@@ -88,6 +89,7 @@ func (dao *TimelineDAO) FetchUserPosts(userID string) ([]model.Post, error) {
 			&post.CreatedAt,
 			&editedAt,
 			&parentPostID,
+			&post.IsBad,
 		); err != nil {
 			log.Printf("[timeline_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err
@@ -108,7 +110,7 @@ func (dao *TimelineDAO) FetchUserPosts(userID string) ([]model.Post, error) {
 // FetchLikedPosts 指定ユーザーのいいねした投稿一覧を取得
 func (dao *TimelineDAO) FetchLikedPosts(userID string) ([]model.Post, error) {
 	rows, err := dao.db.Query(`
-		SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id 
+		SELECT p.post_id, p.user_id, p.content, p.img_url, p.created_at, p.edited_at, p.parent_post_id, p.is_bad 
 		FROM posts p
 		JOIN likes l ON p.post_id = l.post_id
 		WHERE l.user_id = ? AND p.deleted_at IS NULL
@@ -133,6 +135,7 @@ func (dao *TimelineDAO) FetchLikedPosts(userID string) ([]model.Post, error) {
 			&post.CreatedAt,
 			&editedAt,
 			&parentPostID,
+			&post.IsBad,
 		); err != nil {
 			log.Printf("[timeline_dao.go] 投稿データのScan失敗: %v", err)
 			return nil, err
