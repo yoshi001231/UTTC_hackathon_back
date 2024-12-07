@@ -19,7 +19,7 @@ func NewPostDAO(db *sql.DB) *PostDAO {
 // CreatePost 新しい投稿を作成
 func (dao *PostDAO) CreatePost(post model.Post) (*model.Post, error) {
 	_, err := dao.db.Exec(
-		"INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id, is_bad) VALUES (?, ?, ?, ?, ?, ?)",
+		"INSERT INTO posts (post_id, user_id, content, img_url, created_at, parent_post_id, is_bad) VALUES (?, ?, ?, ?, ?, ?, ?)",
 		post.PostID,
 		post.UserID,
 		post.Content,
