@@ -27,11 +27,8 @@ func (uc *UserUseCase) UpdateProfile(user model.User) error {
 	if user.UserID == "" {
 		return errors.New("[user_usecase.go] user_id が無効: 必須項目")
 	}
-	if user.Name == "" || len(user.Name) > 50 {
-		return errors.New("[user_usecase.go] 名前が無効: 必須項目で50文字以内である必要がある")
-	}
-	if user.Bio != nil && len(*user.Bio) > 160 {
-		return errors.New("[user_usecase.go] 自己紹介が無効: 160文字以内である必要がある")
+	if user.Name == "" || len(user.Name) > 255 {
+		return errors.New("[user_usecase.go] 名前が無効: 必須項目で255文字以内である必要がある")
 	}
 	if user.Location != nil && len(*user.Location) > 100 {
 		return errors.New("[user_usecase.go] 位置情報が無効: 100文字以内である必要がある")
