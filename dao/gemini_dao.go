@@ -49,8 +49,8 @@ func (dao *GeminiDAO) FetchUserPostContents(userID string) ([]string, error) {
 	return contents, nil
 }
 
-// GenerateBioWithGemini Geminiを使用して自己紹介を生成
-func (dao *GeminiDAO) GenerateBioWithGemini(prompt string) (*genai.Part, error) {
+// GenerateContentWithPastPosts Geminiを使用してツイート履歴から名前や自己紹介を生成
+func (dao *GeminiDAO) GenerateContentWithPastPosts(prompt string) (*genai.Part, error) {
 	ctx := context.Background()
 	client, err := genai.NewClient(ctx, projectID, location)
 	if err != nil {

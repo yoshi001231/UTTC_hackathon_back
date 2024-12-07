@@ -28,5 +28,21 @@ func (uc *GeminiUseCase) GenerateBio(authID, instruction string) (*genai.Part, e
 	}
 	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")
 
-	return uc.geminiDAO.GenerateBioWithGemini(prompt)
+	return uc.geminiDAO.GenerateContentWithPastPosts(prompt)
+}
+
+// GenerateName 過去ツイートと指示から名前を生成
+func (uc *GeminiUseCase) GenerateName(authID, instruction string) (*genai.Part, error) {
+	tweets, err := uc.geminiDAO.FetchUserPostContents(authID)
+	if err != nil {
+		return nil, fmt.Errorf("過去ツイートの取得失敗: %w", err)
+	}
+
+	prompt := "以下のツイート内容を基に、Twitterの名前を日本語で15字以内で生成してください。"
+	if instruction != "" {
+		prompt += fmt.Sprintf(" 指示: %s", instruction)
+	}
+	prompt += "\nツイート内容:\n" + strings.Join(tweets, "\n")
+
+	return uc.geminiDAO.GenerateContentWithPastPosts(prompt)
 }
