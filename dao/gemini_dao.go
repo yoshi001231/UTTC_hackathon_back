@@ -115,7 +115,7 @@ func (dao *GeminiDAO) FetchUnfollowedUsers(authID string) ([]model.User, error) 
 		FROM users u
 		WHERE u.user_id NOT IN (
 			SELECT f.following_user_id
-			FROM follows f
+			FROM followers f
 			WHERE f.user_id = ?
 		) AND u.user_id != ?
 		ORDER BY u.created_at DESC
