@@ -22,6 +22,8 @@ func main() {
 	postDAO := dao.GetPostDAO()
 	timelineDAO := dao.GetTimelineDAO()
 	userDAO := dao.GetUserDAO()
+	findDAO := dao.GetFindDAO()
+	geminiDAO := dao.GetGeminiDAO()
 	// UseCase初期化
 	authUseCase := usecase.NewAuthUseCase(authDAO)
 	followUseCase := usecase.NewFollowUseCase(followDAO)
@@ -29,6 +31,8 @@ func main() {
 	postUseCase := usecase.NewPostUseCase(postDAO)
 	timelineUseCase := usecase.NewTimelineUseCase(timelineDAO)
 	userUseCase := usecase.NewUserUseCase(userDAO)
+	findUseCase := usecase.NewFindUseCase(findDAO)
+	geminiUseCase := usecase.NewGeminiUseCase(geminiDAO)
 	// Controller初期化
 	authController := controller.NewAuthController(authUseCase)
 	followController := controller.NewFollowController(followUseCase)
@@ -36,6 +40,8 @@ func main() {
 	postController := controller.NewPostController(postUseCase)
 	timelineController := controller.NewTimelineController(timelineUseCase)
 	userController := controller.NewUserController(userUseCase)
+	findController := controller.NewFindController(findUseCase)
+	geminiController := controller.NewGeminiController(geminiUseCase)
 
 	// ルーター初期化
 	router := mux.NewRouter()
@@ -44,6 +50,9 @@ func main() {
 	router.HandleFunc("/auth/register", authController.Handle).Methods("POST")
 	router.HandleFunc("/user/{user_id}", userController.HandleGetUser).Methods("GET")
 	router.HandleFunc("/user/update-profile", userController.HandleUpdateProfile).Methods("PUT")
+	// +ユーザランキング関連エンドポイント
+	router.HandleFunc("/users/top/tweets", userController.HandleGetTopUsersByTweetCount).Methods("GET")
+	router.HandleFunc("/users/top/likes", userController.HandleGetTopUsersByLikes).Methods("GET")
 
 	// 投稿関連エンドポイント
 	router.HandleFunc("/post/create", postController.HandleCreatePost).Methods("POST")
@@ -51,6 +60,7 @@ func main() {
 	router.HandleFunc("/post/{post_id}/update", postController.HandleUpdatePost).Methods("PUT")
 	router.HandleFunc("/post/{post_id}/delete", postController.HandleDeletePost).Methods("DELETE")
 	router.HandleFunc("/post/{post_id}/reply", postController.HandleReplyPost).Methods("POST")
+	router.HandleFunc("/post/{post_id}/children", postController.HandleGetChildrenPosts).Methods("GET")
 
 	// いいね関連エンドポイント
 	router.HandleFunc("/like/{post_id}", likeController.HandleAddLike).Methods("POST")
@@ -62,15 +72,35 @@ func main() {
 	router.HandleFunc("/follow/{user_id}/remove", followController.HandleRemoveFollow).Methods("DELETE")
 	router.HandleFunc("/follow/{user_id}/followers", followController.HandleGetFollowers).Methods("GET")
 	router.HandleFunc("/follow/{user_id}/following", followController.HandleGetFollowing).Methods("GET")
+	// +フォロー関係取得エンドポイント
+	router.HandleFunc("/follow/graph", followController.HandleGetFollowGraph).Methods("GET")
 
 	// タイムライン関連エンドポイント
 	router.HandleFunc("/timeline/{auth_id}", timelineController.HandleGetUserTimeline).Methods("GET")
 	router.HandleFunc("/timeline/posts_by/{user_id}", timelineController.HandleGetUserPosts).Methods("GET")
+	router.HandleFunc("/timeline/liked_by/{user_id}", timelineController.HandleGetLikedPosts).Methods("GET")
+
+	// 検索関連エンドポイント
+	router.HandleFunc("/find/user/{key}", findController.HandleFindUsers).Methods("GET")
+	router.HandleFunc("/find/post/{key}", findController.HandleFindPosts).Methods("GET")
+
+	// Geimini関連エンドポイント
+	router.HandleFunc("/gemini/generate_name/{auth_id}", geminiController.HandleGenerateName).Methods("POST")
+	router.HandleFunc("/gemini/generate_bio/{auth_id}", geminiController.HandleGenerateBio).Methods("POST")
+	router.HandleFunc("/gemini/generate_tweet_continuation/{auth_id}", geminiController.HandleGenerateTweetContinuation).Methods("POST")
+	router.HandleFunc("/gemini/check_isbad/{post_id}", geminiController.HandleCheckIsBad).Methods("GET")
+	router.HandleFunc("/gemini/update_isbad/{post_id}/{bool}", geminiController.HandleUpdateIsBad).Methods("PUT")
+	router.HandleFunc("/gemini/recommend/{auth_id}", geminiController.HandleRecommendUsers).Methods("POST")
+
+	// OPTIONSリクエストに対応
+	router.Methods("OPTIONS").HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		w.WriteHeader(http.StatusOK)
+	})
 
 	// CORS設定
 	corsOptions := handlers.CORS(
-		handlers.AllowedOrigins([]string{"*"}),                                       // 全てのオリジンを許可
-		handlers.AllowedHeaders([]string{"Content-Type, Authorization"}),             // 許可するヘッダー
+		handlers.AllowedOrigins([]string{"*"}),                                       // 許可するURL
+		handlers.AllowedHeaders([]string{"Content-Type", "Authorization"}),           // 許可するヘッダー
 		handlers.AllowedMethods([]string{"GET", "DELETE", "POST", "PUT", "OPTIONS"}), // 許可するHTTPメソッド
 	)
 
@@ -96,7 +126,8 @@ func main() {
 
 	// サーバー起動
 	log.Println("[main.go] サーバー起動中...")
-	if err := http.ListenAndServe(":8080", loggingHandler(corsOptions(router))); err != nil {
+	wrappedRouter := loggingHandler(corsOptions(router))
+	if err := http.ListenAndServe(":8080", wrappedRouter); err != nil {
 		log.Fatal("[main.go] サーバー起動失敗")
 	}
 }

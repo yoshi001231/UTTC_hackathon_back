@@ -1,5 +1,3 @@
-// usecase/timeline_usecase.go
-
 package usecase
 
 import (
@@ -30,4 +28,12 @@ func (uc *TimelineUseCase) GetUserPosts(userID string) ([]model.Post, error) {
 		return nil, errors.New("[timeline_usecase.go] auth_id が無効: 必須項目")
 	}
 	return uc.TimelineDAO.FetchUserPosts(userID)
+}
+
+// GetLikedPosts 指定ユーザーのいいねした投稿一覧を取得
+func (uc *TimelineUseCase) GetLikedPosts(userID string) ([]model.Post, error) {
+	if userID == "" {
+		return nil, errors.New("[timeline_usecase.go] user_id が無効: 必須項目")
+	}
+	return uc.TimelineDAO.FetchLikedPosts(userID)
 }

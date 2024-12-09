@@ -1,5 +1,3 @@
-// dao/like_dao.go
-
 package dao
 
 import (
@@ -37,7 +35,7 @@ func (dao *LikeDAO) RemoveLike(userID, postID string) error {
 
 // GetUsersByPostID 投稿にいいねしたユーザー一覧を取得
 func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
-	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url FROM users u INNER JOIN likes l ON u.user_id = l.user_id WHERE l.post_id = ?`, postID)
+	rows, err := dao.db.Query(`SELECT u.user_id, u.name, u.bio, u.profile_img_url, u.header_img_url FROM users u INNER JOIN likes l ON u.user_id = l.user_id WHERE l.post_id = ?`, postID)
 	if err != nil {
 		log.Printf("[like_dao.go] 以下のいいねユーザー一覧取得失敗 (post_id: %s): %v", postID, err)
 		return nil, err
@@ -47,10 +45,19 @@ func (dao *LikeDAO) GetUsersByPostID(postID string) ([]model.User, error) {
 	var users []model.User
 	for rows.Next() {
 		var user model.User
-		if err := rows.Scan(&user.UserID, &user.Name, &user.Bio, &user.ProfileImgURL); err != nil {
+		var bio, profileImgURL, headerImgURL sql.NullString
+
+		// Scan 時に NullString を使用
+		if err := rows.Scan(&user.UserID, &user.Name, &bio, &profileImgURL, &headerImgURL); err != nil {
 			log.Printf("[like_dao.go] ユーザーデータのScan失敗: %v", err)
 			return nil, err
 		}
+
+		// NullString をポインタ型に変換
+		user.Bio = nullableToPointer(bio)
+		user.ProfileImgURL = nullableToPointer(profileImgURL)
+		user.HeaderImgURL = nullableToPointer(headerImgURL)
+
 		users = append(users, user)
 	}
 	return users, nil

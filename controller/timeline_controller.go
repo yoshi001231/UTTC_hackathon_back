@@ -62,3 +62,26 @@ func (c *TimelineController) HandleGetUserPosts(w http.ResponseWriter, r *http.R
 	w.Header().Set("Content-Type", "application/json")
 	w.Write(resp)
 }
+
+// HandleGetLikedPosts 指定ユーザーのいいねした投稿一覧を取得
+func (c *TimelineController) HandleGetLikedPosts(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	userID := vars["user_id"]
+
+	posts, err := c.timelineUseCase.GetLikedPosts(userID)
+	if err != nil {
+		log.Printf("[timeline_controller.go] いいねした投稿一覧取得失敗: %v", err)
+		http.Error(w, "いいねした投稿一覧取得に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	resp, err := json.Marshal(posts)
+	if err != nil {
+		log.Printf("[timeline_controller.go] JSONエンコード失敗: %v", err)
+		http.Error(w, "レスポンス生成に失敗しました", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	w.Write(resp)
+}

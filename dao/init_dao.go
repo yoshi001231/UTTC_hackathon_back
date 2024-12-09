@@ -1,5 +1,3 @@
-// dao/init_dao.go
-
 package dao
 
 import (
@@ -21,6 +19,8 @@ var (
 	postDAOInstance     *PostDAO
 	timelineDAOInstance *TimelineDAO
 	userDAOInstance     *UserDAO
+	findDAOInstance     *FindDAO
+	geminiDAOInstance   *GeminiDAO
 )
 
 func InitDB() *sql.DB {
@@ -106,4 +106,34 @@ func GetUserDAO() *UserDAO {
 		userDAOInstance = NewUserDAO(InitDB())
 	}
 	return userDAOInstance
+}
+
+func GetFindDAO() *FindDAO {
+	if findDAOInstance == nil {
+		findDAOInstance = NewFindDAO(InitDB())
+	}
+	return findDAOInstance
+}
+
+func GetGeminiDAO() *GeminiDAO {
+	if geminiDAOInstance == nil {
+		geminiDAOInstance = NewGeminiDAO(InitDB())
+	}
+	return geminiDAOInstance
+}
+
+// ヘルパー関数: sql.NullString をポインタ型に変換
+func nullableToPointer(ns sql.NullString) *string {
+	if ns.Valid {
+		return &ns.String
+	}
+	return nil
+}
+
+// ヘルパー関数: ポインタ型を sql.NullString に変換
+func sqlNullString(s *string) sql.NullString {
+	if s != nil {
+		return sql.NullString{String: *s, Valid: true}
+	}
+	return sql.NullString{Valid: false}
 }

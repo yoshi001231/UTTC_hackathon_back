@@ -1,5 +1,3 @@
-// usecase/follow_usecase.go
-
 package usecase
 
 import (
@@ -40,4 +38,9 @@ func (uc *FollowUseCase) GetFollowers(userID string) ([]model.User, error) {
 // GetFollowing 指定ユーザーのフォロー中一覧を取得
 func (uc *FollowUseCase) GetFollowing(userID string) ([]model.User, error) {
 	return uc.FollowDAO.GetFollowing(userID)
+}
+
+// GetFollowGraph フォローグラフを取得
+func (uc *FollowUseCase) GetFollowGraph() ([]model.Follow, error) {
+	return uc.FollowDAO.GetFollowGraph()
 }
