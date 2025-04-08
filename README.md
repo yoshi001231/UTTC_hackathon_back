@@ -91,81 +91,81 @@ posts ||--o{ posts : "parent_post_id"
 
 ### **1. ユーザー認証関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/auth/register` | POST | 新規ユーザー登録 | 不要 | `user_id`, `name`, `bio`, `profile_img_url` |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/auth/register` | POST | 新規ユーザー登録 | `user_id`, `name`, `bio`, `profile_img_url` |
 
 ---
 
 ### **2. ユーザー管理エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/user/{user_id}` | GET | ユーザーの詳細情報を取得 | 不要 | - |
-| `/user/update-profile` | PUT | プロフィール情報の更新 | 必要 | `user_id`, `name`, `bio`, `profile_img_url` |
-| `/users/top/tweets` | GET | ツイート数が多い順にユーザーを取得（オプション: `limit` デフォルト: 100） | 不要 | - |
-| `/users/top/likes` | GET | もらったいいね数が多い順にユーザーを取得（オプション: `limit` デフォルト: 100） | 不要 | - |
+| エンドポイント | メソッド | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/user/{user_id}` | GET | ユーザーの詳細情報を取得 | - |
+| `/user/update-profile` | PUT | プロフィール情報の更新 | `user_id`, `name`, `bio`, `profile_img_url` |
+| `/users/top/tweets` | GET | ツイート数が多い順にユーザーを取得（オプション: `limit` デフォルト: 100） | - |
+| `/users/top/likes` | GET | もらったいいね数が多い順にユーザーを取得（オプション: `limit` デフォルト: 100） | - |
 
 ---
 
 ### **3. ツイート関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/post/create` | POST | 新しい投稿を作成 | 必要 | `user_id`, `content`, `img_url` |
-| `/post/{post_id}` | GET | 投稿の詳細を取得 | 不要 | - |
-| `/post/{post_id}/update` | PUT | 投稿の内容を更新 | 必要 | `user_id`, `content`, `img_url` |
-| `/post/{post_id}/delete` | DELETE | 投稿を削除 | 必要 | `user_id` |
-| `/post/{post_id}/reply` | POST | 指定した投稿にリプライ | 必要 | `user_id`, `content`, `img_url`  |
-| `/post/{post_id}/children` | GET | 投稿への返信一覧を取得 | 不要 | - |
-| `/post/{post_id}/check_deleted` | GET | 投稿が削除されているかを取得 | 不要 |  |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/post/create` | POST | 新しい投稿を作成 | `user_id`, `content`, `img_url` |
+| `/post/{post_id}` | GET | 投稿の詳細を取得 | - |
+| `/post/{post_id}/update` | PUT | 投稿の内容を更新 | `user_id`, `content`, `img_url` |
+| `/post/{post_id}/delete` | DELETE | 投稿を削除 | `user_id` |
+| `/post/{post_id}/reply` | POST | 指定した投稿にリプライ | `user_id`, `content`, `img_url`  |
+| `/post/{post_id}/children` | GET | 投稿への返信一覧を取得 | - |
+| `/post/{post_id}/check_deleted` | GET | 投稿が削除されているかを取得 | - |
 
 ---
 
 ### **4. いいね関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/like/{post_id}` | POST | 投稿にいいねを追加 | 必要 | `user_id` |
-| `/like/{post_id}/remove` | DELETE | 投稿のいいねを削除 | 必要 | `user_id` |
-| `/like/{post_id}/users` | GET | 指定投稿にいいねしたユーザー一覧を取得 | 不要 | - |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/like/{post_id}` | POST | 投稿にいいねを追加 | `user_id` |
+| `/like/{post_id}/remove` | DELETE | 投稿のいいねを削除 | `user_id` |
+| `/like/{post_id}/users` | GET | 指定投稿にいいねしたユーザー一覧を取得 | - |
 
 ---
 
 ### **5. フォロー関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/follow/{user_id}` | POST | 指定ユーザーをフォロー | 必要 | `user_id` |
-| `/follow/{user_id}/remove` | DELETE | 指定ユーザーのフォローを解除 | 必要 | `user_id` |
-| `/follow/{user_id}/followers` | GET | 指定ユーザーのフォロワー取得 | 不要 | - |
-| `/follow/{user_id}/following` | GET | 指定ユーザーのフォロー中取得 | 不要 | - |
-| `/follow/graph` | GET | フォローグラフを取得 | 不要 | - |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/follow/{user_id}` | POST | 指定ユーザーをフォロー | `user_id` |
+| `/follow/{user_id}/remove` | DELETE | 指定ユーザーのフォローを解除 | `user_id` |
+| `/follow/{user_id}/followers` | GET | 指定ユーザーのフォロワー取得 | - |
+| `/follow/{user_id}/following` | GET | 指定ユーザーのフォロー中取得 | - |
+| `/follow/graph` | GET | フォローグラフを取得 | - |
 
 ---
 
 ### **6. タイムラインエンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/timeline/{auth_id}` | GET | ログインユーザーのタイムライン | 必要 | - |
-| `/timeline/posts_by/{user_id}` | GET | 指定ユーザーの投稿一覧を取得 | 不要 | - |
-| `/timeline/liked_by/{user_id}` | GET | 指定ユーザーがいいねした投稿一覧を取得 | 不要 | - |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/timeline/{auth_id}` | GET | ログインユーザーのタイムライン | - |
+| `/timeline/posts_by/{user_id}` | GET | 指定ユーザーの投稿一覧を取得 | - |
+| `/timeline/liked_by/{user_id}` | GET | 指定ユーザーがいいねした投稿一覧を取得 | - |
 
 ### **7.  検索関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/find/user/{key}` | GET | 指定したキーワードを `name` または `bio` に含むユーザーを検索 | 不要 | - |
-| `/find/post/{key}` | GET | 指定したキーワードを `content` に含む投稿を検索 | 不要 | - |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/find/user/{key}` | GET | 指定したキーワードを `name` または `bio` に含むユーザーを検索 | - |
+| `/find/post/{key}` | GET | 指定したキーワードを `content` に含む投稿を検索 | - |
 
 ### **8. Gemini関連エンドポイント**
 
-| エンドポイント | メソッド | 説明 | 認証 | 必要なJSONコンテンツ |
-| --- | --- | --- | --- | --- |
-| `/gemini/generate_name/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従った名前を生成。`instruction`が””なら何も指示しない | 必要 | `instruction` |
-| `/gemini/generate_bio/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従った自己紹介を生成。`instruction`が””なら何も指示しない | 必要 | `instruction` |
-| `/gemini/generate_tweet_continuation/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従って`temp_text`に続くツイートを生成。`instruction`が””なら何も指示しない | 必要 | `instruction`, `temp_text` |
-| `/gemini/check_isbad/{post_id}` | GET | 指定したツイートのコンテンツを見て、良識に反する内容なら"YES"、そうでないなら"NO"を返す | 不要 | - |
-| `/gemini/update_isbad/{post_id}/{bool}`  | PUT | 指定したツイートのis_badカラムを`bool` が0ならfalse, 1ならtrueに変更する | 不要 | - |
-| `/gemini/recommend/{auth_id}` | POST | 指定したユーザがまだフォローしていないユーザの中から、`instruction` に従っておすすめのユーザのidを返す | 不要 | `instruction` |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
+| --- | --- | --- | --- |
+| `/gemini/generate_name/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従った名前を生成。`instruction`が””なら何も指示しない | `instruction` |
+| `/gemini/generate_bio/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従った自己紹介を生成。`instruction`が””なら何も指示しない | `instruction` |
+| `/gemini/generate_tweet_continuation/{auth_id}` | POST | 指定したユーザーの過去ツイートをもとに、`instruction`に従って`temp_text`に続くツイートを生成。`instruction`が””なら何も指示しない |  `instruction`, `temp_text` |
+| `/gemini/check_isbad/{post_id}` | GET | 指定したツイートのコンテンツを見て、良識に反する内容なら"YES"、そうでないなら"NO"を返す | - |
+| `/gemini/update_isbad/{post_id}/{bool}`  | PUT | 指定したツイートのis_badカラムを`bool` が0ならfalse, 1ならtrueに変更する | - |
+| `/gemini/recommend/{auth_id}` | POST | 指定したユーザがまだフォローしていないユーザの中から、`instruction` に従っておすすめのユーザのidを返す | `instruction` |
