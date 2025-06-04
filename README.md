@@ -99,7 +99,7 @@ posts ||--o{ posts : "parent_post_id"
 
 ### **2. ユーザー管理エンドポイント**
 
-| エンドポイント | メソッド | 必要なJSONコンテンツ |
+| エンドポイント | メソッド | 説明 | 必要なJSONコンテンツ |
 | --- | --- | --- | --- |
 | `/user/{user_id}` | GET | ユーザーの詳細情報を取得 | - |
 | `/user/update-profile` | PUT | プロフィール情報の更新 | `user_id`, `name`, `bio`, `profile_img_url` |
